@@ -1,7 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Editor, { useMonaco } from "@monaco-editor/react";
+import dynamic from "next/dynamic";
+import { useMonaco } from "@monaco-editor/react";
+
+const Editor = dynamic(
+  () => import("@monaco-editor/react").then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[260px] items-center justify-center bg-slate-950 text-sm text-slate-400">
+        Loading formula editor...
+      </div>
+    ),
+  }
+);
 import MetricInterpretDialog from "./MetricInterpretDialog";
 import {
     AlertCircle,
@@ -112,106 +125,154 @@ export default function MetricFormulaBuilder({
         if (!monaco) return;
 
         const languageId = "mmql";
+        let disposable: { dispose: () => void } | null = null;
 
-        const languages = monaco.languages
-            .getLanguages()
-            .map((language: any) => language.id);
+        try {
+            const languages = monaco.languages
+                .getLanguages()
+                .map((language: any) => language.id);
 
-        if (!languages.includes(languageId)) {
-            monaco.languages.register({ id: languageId });
-        }
+            if (!languages.includes(languageId)) {
+                monaco.languages.register({ id: languageId });
+            }
 
-        monaco.languages.setMonarchTokensProvider(languageId, {
-            tokenizer: {
-                root: [
-                    [
-                        /\b(SUM|AVG|MIN|MAX|COUNT|DISTINCTCOUNT|COUNTROWS|SAFE_DIVIDE|ROUND|ABS|CALCULATE|IF)\b/,
-                        "keyword",
+            monaco.languages.setMonarchTokensProvider(languageId, {
+                tokenizer: {
+                    root: [
+                        [
+                            /\b(SUM|AVG|MIN|MAX|COUNT|DISTINCTCOUNT|COUNTROWS|SAFE_DIVIDE|ROUND|ABS|CALCULATE|IF)\b/,
+                            "keyword",
+                        ],
+                        [/\[[^\]]+\]/, "variable"],
+                        [/[a-zA-Z_][\w]*(?=\.)/, "type.identifier"],
+                        [/[a-zA-Z_][\w]*/, "identifier"],
+                        [/[0-9]+(\.[0-9]+)?/, "number"],
+                        [/".*?"/, "string"],
+                        [/'.*?'/, "string"],
+                        [/[+\-*/=<>!]+/, "operator"],
                     ],
-                    [/\[[^\]]+\]/, "variable"],
-                    [/[a-zA-Z_][\w]*(?=\.)/, "type.identifier"],
-                    [/[a-zA-Z_][\w]*/, "identifier"],
-                    [/[0-9]+(\.[0-9]+)?/, "number"],
-                    [/".*?"/, "string"],
-                    [/'.*?'/, "string"],
-                    [/[+\-*/=<>!]+/, "operator"],
-                ],
-            },
-        });
+                },
+            });
 
-        const disposable = monaco.languages.registerCompletionItemProvider(
-            languageId,
-            {
+            disposable = monaco.languages.registerCompletionItemProvider(languageId, {
                 triggerCharacters: [".", "[", "(", "_"],
 
                 provideCompletionItems: (model: any, position: any) => {
-                    const word = model.getWordUntilPosition(position);
+                    try {
+                        const word = model.getWordUntilPosition(position);
 
-                    const range = {
-                        startLineNumber: position.lineNumber,
-                        endLineNumber: position.lineNumber,
-                        startColumn: word.startColumn,
-                        endColumn: word.endColumn,
-                    };
+                        const range = {
+                            startLineNumber: position.lineNumber,
+                            endLineNumber: position.lineNumber,
+                            startColumn: word.startColumn,
+                            endColumn: word.endColumn,
+                        };
 
-                    const textUntilCursor = model.getValueInRange({
-                        startLineNumber: position.lineNumber,
-                        startColumn: 1,
-                        endLineNumber: position.lineNumber,
-                        endColumn: position.column,
-                    });
+                        const textUntilCursor = model.getValueInRange({
+                            startLineNumber: position.lineNumber,
+                            startColumn: 1,
+                            endLineNumber: position.lineNumber,
+                            endColumn: position.column,
+                        });
 
-                    const tableMatch = textUntilCursor.match(/([a-zA-Z_][\w]*)\.$/);
+                        const tableMatch = textUntilCursor.match(
+                            /([a-zA-Z_][\w]*)\.$/
+                        );
 
-                    if (tableMatch) {
-                        const tableName = tableMatch[1];
+                        if (tableMatch) {
+                            const tableName = tableMatch[1];
 
-                        const columnSuggestions = modelColumns
-                            .filter(
-                                (column) =>
-                                    getColumnTableName(column, tableLookup) === tableName
-                            )
-                            .map((column) => ({
-                                label: getColumnName(column),
-                                kind: monaco.languages.CompletionItemKind.Field,
-                                insertText: getColumnName(column),
-                                detail: getColumnDataType(column),
-                                range,
-                            }));
+                            const columnSuggestions = modelColumns
+                                .filter(
+                                    (column) =>
+                                        getColumnTableName(column, tableLookup) === tableName
+                                )
+                                .map((column) => ({
+                                    label: getColumnName(column),
+                                    kind: monaco.languages.CompletionItemKind.Field,
+                                    insertText: getColumnName(column),
+                                    detail: getColumnDataType(column),
+                                    range,
+                                }));
+
+                            return {
+                                suggestions: columnSuggestions,
+                            };
+                        }
+
+                        if (textUntilCursor.endsWith("[")) {
+                            return {
+                                suggestions: metrics.map((metric) => ({
+                                    label: `[${metric.name}]`,
+                                    kind: monaco.languages.CompletionItemKind.Variable,
+                                    insertText: `[${metric.name}]`,
+                                    detail: "Metric",
+                                    range,
+                                })),
+                            };
+                        }
 
                         return {
-                            suggestions: columnSuggestions,
-                        };
-                    }
-
-                    if (textUntilCursor.endsWith("[")) {
-                        return {
-                            suggestions: metrics.map((metric) => ({
-                                label: `[${metric.name}]`,
-                                kind: monaco.languages.CompletionItemKind.Variable,
-                                insertText: `[${metric.name}]`,
-                                detail: "Metric",
+                            suggestions: buildCompletionItems({
+                                modelTables,
+                                modelColumns,
+                                metrics,
+                                tableLookup,
+                                monaco,
                                 range,
-                            })),
+                            }),
+                        };
+                    } catch (error: any) {
+                        const message = String(
+                            error?.message ||
+                            error?.msg ||
+                            error?.type ||
+                            ""
+                        ).toLowerCase();
+
+                        if (
+                            message.includes("manually canceled") ||
+                            message.includes("cancelation") ||
+                            message.includes("cancelled")
+                        ) {
+                            return {
+                                suggestions: [],
+                            };
+                        }
+
+                        console.error("Monaco completion failed:", error);
+
+                        return {
+                            suggestions: [],
                         };
                     }
-
-                    return {
-                        suggestions: buildCompletionItems({
-                            modelTables,
-                            modelColumns,
-                            metrics,
-                            tableLookup,
-                            monaco,
-                            range,
-                        }),
-                    };
                 },
+            });
+        } catch (error: any) {
+            const message = String(
+                error?.message ||
+                error?.msg ||
+                error?.type ||
+                ""
+            ).toLowerCase();
+
+            if (
+                message.includes("manually canceled") ||
+                message.includes("cancelation") ||
+                message.includes("cancelled")
+            ) {
+                return;
             }
-        );
+
+            console.error("Monaco setup failed:", error);
+        }
 
         return () => {
-            disposable.dispose();
+            try {
+                disposable?.dispose();
+            } catch {
+               
+            }
         };
     }, [monaco, metrics, modelColumns, modelTables, tableLookup]);
 

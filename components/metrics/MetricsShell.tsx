@@ -65,29 +65,100 @@ export default function MetricsShell({ modelId }: Props) {
     null
   );
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+  function handleUnhandledRejection(
+    event: PromiseRejectionEvent
+  ) {
+    const reason = event.reason;
+
+    const message =
+      typeof reason === "string"
+        ? reason
+        : reason?.message ||
+          reason?.msg ||
+          reason?.type ||
+          "";
+
+    const normalized = String(message).toLowerCase();
+
+    if (
+      normalized.includes("manually canceled") ||
+      normalized.includes("cancelation") ||
+      normalized.includes("cancelled")
+    ) {
+      event.preventDefault();
+    }
+  }
+
+  window.addEventListener(
+    "unhandledrejection",
+    handleUnhandledRejection
+  );
+
+  return () => {
+    window.removeEventListener(
+      "unhandledrejection",
+      handleUnhandledRejection
+    );
+  };
+}, []);
 
   useEffect(() => {
+    if (!activeWorkspace.workspace_id) {
+      return;
+    }
+
+    let cancelled = false;
+
     async function loadData() {
-      if (!activeWorkspace.workspace_id) return;
-
-      setLoading(true);
-
       try {
+        setLoading(true);
+
         const [modelResponse, metricsResponse] = await Promise.all([
           getModelDetail(modelId),
           getModelMetrics(modelId),
         ]);
 
+        if (cancelled) {
+          return;
+        }
+
         setModelDetail(modelResponse);
         setMetrics(metricsResponse);
-      } catch (error) {
-        console.error("Failed to load metrics workspace:", error);
+      } catch (error: any) {
+        const message =
+          error?.message ||
+          error?.msg ||
+          error?.type ||
+          "";
+
+        const normalized = String(message).toLowerCase();
+
+        if (
+          normalized.includes("manually canceled") ||
+          normalized.includes("cancelation") ||
+          normalized.includes("cancelled") ||
+          error?.name === "AbortError"
+        ) {
+          return;
+        }
+
+        console.error(
+          "Failed to load metrics workspace:",
+          error
+        );
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     loadData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [modelId, activeWorkspace.workspace_id]);
 
   const activeTabMeta = useMemo(

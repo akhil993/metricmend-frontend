@@ -93,32 +93,42 @@ function formatLabel(value: any) {
   return raw;
 }
 
-function normalizeData(data: any[]) {
+function normalizeData(data: any[], visualType?: string) {
   if (!Array.isArray(data)) return [];
 
   return data.map((row, index) => {
     const raw = row?.raw ?? row;
 
     const label =
-      row.label ??
-      row.period ??
-      row.month ??
-      row.date ??
-      row.category ??
-      row.customer ??
-      row.product ??
-      row.state ??
-      row.name ??
-      raw?.label ??
-      raw?.period ??
-      raw?.month ??
-      raw?.date ??
-      raw?.category ??
-      raw?.customer ??
-      raw?.product ??
-      raw?.state ??
-      raw?.name ??
-      `Item ${index + 1}`;
+      visualType === "line"
+        ? row.period ??
+          row.date ??
+          row.month ??
+          raw?.period ??
+          raw?.date ??
+          raw?.month ??
+          row.label ??
+          raw?.label ??
+          `Period ${index + 1}`
+        : row.label ??
+          row.category ??
+          row.customer ??
+          row.product ??
+          row.state ??
+          row.name ??
+          row.period ??
+          row.month ??
+          row.date ??
+          raw?.label ??
+          raw?.category ??
+          raw?.customer ??
+          raw?.product ??
+          raw?.state ??
+          raw?.name ??
+          raw?.period ??
+          raw?.month ??
+          raw?.date ??
+          `Item ${index + 1}`;
 
     const value =
       row.value ??
@@ -139,9 +149,11 @@ function normalizeData(data: any[]) {
 
     return {
       ...row,
-      raw,
+      ...raw,
       label: formatLabel(label),
       value: Number(value),
+      current_value: row.current_value ?? raw?.current_value,
+      previous_value: row.previous_value ?? raw?.previous_value,
     };
   });
 }
@@ -153,7 +165,7 @@ export default function MiraVisual({ visual, metadata, onDrilldown }: Props) {
     return <MiraTableVisual visual={visual} onDrilldown={onDrilldown} />;
   }
 
-  const data = normalizeData(visual.data);
+  const data = normalizeData(visual.data, visual.type);
   const chartData = data.slice(0, MAX_CHART_ROWS);
   const formatType = inferFormatType(visual, metadata, data);
 
@@ -183,12 +195,12 @@ export default function MiraVisual({ visual, metadata, onDrilldown }: Props) {
 
   return (
     <MiraBarVisual
-  visual={visual}
-  data={chartData}
-  formatType={formatType}
-  formatValue={formatValue}
-  formatLabel={formatLabel}
-  onDrilldown={onDrilldown}
-/>
+      visual={visual}
+      data={chartData}
+      formatType={formatType}
+      formatValue={formatValue}
+      formatLabel={formatLabel}
+      onDrilldown={onDrilldown}
+    />
   );
 }

@@ -25,46 +25,21 @@ type Props = {
 };
 
 const ACTIONS: {
-    key: MiraActionKey;
-    label: string;
-    icon: React.ElementType;
+  key: MiraActionKey;
+  label: string;
+  icon: React.ElementType;
 }[] = [
-        {
-            key: "save_insight",
-            label: "Save Insight",
-            icon: BookmarkPlus,
-        },
-        {
-            key: "share_workspace",
-            label: "Share",
-            icon: Share2,
-        },
-        {
-            key: "export_visual",
-            label: "Export Visual",
-            icon: Download,
-        },
-        {
-            key: "export_table",
-            label: "Export Table",
-            icon: FileSpreadsheet,
-        },
-        {
-            key: "create_dashboard_card",
-            label: "Dashboard Card",
-            icon: LayoutDashboard,
-        },
-        {
-            key: "root_cause_analysis",
-            label: "Root Cause",
-            icon: Target,
-        },
-        {
-            key: "executive_summary",
-            label: "Executive Summary",
-            icon: Sparkles,
-        },
-    ];
+  {
+    key: "root_cause_analysis",
+    label: "Root Cause",
+    icon: Target,
+  },
+  {
+    key: "executive_summary",
+    label: "Executive Summary",
+    icon: Sparkles,
+  },
+];
 
 export default function MiraActions({ onAction, disabled = false }: Props) {
     return (

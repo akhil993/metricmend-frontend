@@ -1,6 +1,6 @@
 import { getCurrentUserId } from "@/lib/auth/session";
 
-function getApiBaseUrl() {
+export function getApiBaseUrl() {
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -13,6 +13,56 @@ function getApiBaseUrl() {
   return apiBaseUrl;
 }
 
+function getErrorMessage(data: unknown) {
+  if (!data) {
+    return "Request failed";
+  }
+
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (typeof data === "object") {
+    const value = data as {
+      detail?: unknown;
+      message?: unknown;
+      error?: unknown;
+    };
+
+    if (typeof value.detail === "string") {
+      return value.detail;
+    }
+
+    if (Array.isArray(value.detail)) {
+      return value.detail
+        .map((item) => {
+          if (
+            item &&
+            typeof item === "object" &&
+            "msg" in item
+          ) {
+            return String(
+              (item as { msg: unknown }).msg
+            );
+          }
+
+          return String(item);
+        })
+        .join(", ");
+    }
+
+    if (typeof value.message === "string") {
+      return value.message;
+    }
+
+    if (typeof value.error === "string") {
+      return value.error;
+    }
+  }
+
+  return "Request failed";
+}
+
 export async function fetchJson<T>(
   path: string,
   options?: RequestInit
@@ -22,32 +72,34 @@ export async function fetchJson<T>(
     {
       ...options,
       headers: {
-        "Content-Type":
-          "application/json",
+        "Content-Type": "application/json",
         ...(options?.headers || {}),
       },
     }
   );
 
-  if (!response.ok) {
-    const text =
-      await response.text();
+  const contentType =
+    response.headers.get("content-type") || "";
 
+  const data = contentType.includes("application/json")
+    ? await response.json().catch(() => null)
+    : await response.text().catch(() => "");
+
+  if (!response.ok) {
     throw new Error(
-      text ||
+      getErrorMessage(data) ||
         `Request failed: ${response.status}`
     );
   }
 
-  return response.json();
+  return data as T;
 }
 
 export async function fetchJsonWithAuth<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
-  const userId =
-    await getCurrentUserId();
+  const userId = await getCurrentUserId();
 
   return fetchJson<T>(path, {
     ...options,

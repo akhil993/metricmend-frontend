@@ -111,27 +111,27 @@ export default function HomePage() {
           </div>
         </nav>
 
-        {/* HERO */}
+
         <section
           id="platform"
           className="flex min-h-[calc(100vh-80px)] items-center pt-12 pb-20"
         >
           <div className="mx-auto max-w-5xl text-center">
             <div className="inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm text-cyan-100 shadow-sm backdrop-blur">
-              Governed AI analytics for teams that cannot afford wrong answers
+              Governed AI analytics 
             </div>
 
             <h1 className="mt-8 text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
-              Ask your business data questions. Get governed answers instantly.
+              Ask business questions.
+              <span className="block bg-gradient-to-r from-indigo-300 via-cyan-200 to-emerald-200 bg-clip-text text-transparent">
+                Get trusted answers, insights, and actions.
+              </span>
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-neutral-400">
-              MetricMend turns semantic models, approved metrics, role-based
-              access, and{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-cyan-300 to-emerald-300 bg-clip-text font-semibold text-transparent">
-                Mira
-              </span>{" "}
-              into one decision intelligence layer for trusted analytics.
+              MetricMend turns governed semantic models into an AI decision
+              intelligence layer — so teams can move from dashboards to trusted
+              answers, root-cause analysis, recommendations, and next-step actions.
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
