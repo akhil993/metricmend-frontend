@@ -1,75 +1,110 @@
 "use client";
 
 import posthog from "posthog-js";
+
 export default function ResumePage() {
+  const highlights = [
+    {
+      title: "Power BI & Executive Analytics",
+      text: "Built semantic models, KPI scorecards, advanced DAX calculations, and executive reporting solutions used across business teams.",
+    },
+    {
+      title: "Semantic Modeling & Governance",
+      text: "Designed reusable metrics, dimensional models, and governed analytics layers that improved reporting consistency.",
+    },
+    {
+      title: "Cloud Data Platforms",
+      text: "Hands-on experience across SQL Server, Azure, Microsoft Fabric, AWS, Athena, and Databricks analytics environments.",
+    },
+    {
+      title: "Analytics Engineering & AI",
+      text: "Combining analytics engineering, product thinking, and AI-driven analytics to create modern decision-support systems.",
+    },
+  ];
+
   return (
-      <>
-       
-    <div className="min-h-screen bg-slate-950 text-white p-10">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-5xl px-6 py-16">
+        <div className="text-center">
+          <p className="text-sm uppercase tracking-[0.25em] text-violet-300">
+            Resume
+          </p>
 
-        {/* HEADER */}
-        <h1 className="text-4xl font-bold">Resume</h1>
+          <h1 className="mt-4 text-5xl font-bold">
+            Akhil Devabhakthuni
+          </h1>
 
-        <p className="mt-4 text-slate-300 max-w-2xl">
-          Senior Data & Analytics Engineer with 9+ years of experience building
-          scalable data platforms, semantic layers, and AI-driven analytics products.
-        </p>
+          <p className="mt-3 text-xl text-slate-300">
+            Senior Data & Analytics Engineer
+          </p>
 
-        {/* HIGHLIGHTS 🔥 */}
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <p className="mx-auto mt-6 max-w-3xl leading-8 text-slate-400">
+            9+ years of experience across business intelligence, semantic
+            modeling, cloud data platforms, analytics engineering, and executive
+            reporting. Focused on building trusted analytics foundations that
+            help organizations make better decisions.
+          </p>
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="font-semibold">AI + Analytics</h3>
-            <p className="mt-2 text-sm text-slate-300">
-              Built a full-stack AI decision intelligence platform translating
-              natural language into SQL, insights, and recommendations.
-            </p>
+          <div className="mt-8">
+            <a
+              href="/Akhil_Devabhakthuni_Senior_Data_Analytics_Engineer.pdf"
+              download
+              className="inline-flex rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-violet-900/30 transition hover:scale-[1.02]"
+              onClick={() => posthog.capture("resume_downloaded")}
+            >
+              Download Resume PDF
+            </a>
           </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="font-semibold">Cloud & Data Engineering</h3>
-            <p className="mt-2 text-sm text-slate-300">
-              Designed scalable data pipelines using Azure, AWS, and Microsoft Fabric
-              with Bronze/Silver/Gold architecture.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="font-semibold">Business Impact</h3>
-            <p className="mt-2 text-sm text-slate-300">
-              Delivered executive dashboards and analytics solutions used by
-              leadership for decision-making across sales and operations.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="font-semibold">Modern BI & Semantic Layer</h3>
-            <p className="mt-2 text-sm text-slate-300">
-              Built governed semantic models enabling consistent KPIs and
-              self-service analytics.
-            </p>
-          </div>
-
-        </div> 
-
-        {/* CTA 🔥 */}
-        <div className="mt-10 text-center">
-<p className="text-slate-400 mb-4">
-  Trusted experience across enterprise BI, cloud data platforms, and AI-driven analytics
-</p>
-          <a
-            href="/Akhil_Devabhakthuni_Senior_Data_Analytics_Engineer.pdf"
-            download
-            className="bg-violet-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-violet-500 transition"
-            onClick={() => posthog.capture("resume_downloaded")}
-          >
-            Download Full Resume
-          </a>
         </div>
 
+        <div className="mt-14 grid gap-5 md:grid-cols-2">
+          {highlights.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-xl shadow-black/20"
+            >
+              <h3 className="text-lg font-semibold text-white">
+                {item.title}
+              </h3>
+
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-14 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center">
+          <h2 className="text-2xl font-semibold">
+            Areas of Expertise
+          </h2>
+
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            {[
+              "Power BI",
+              "Semantic Modeling",
+              "Microsoft Fabric",
+              "Azure",
+              "AWS",
+              "Athena",
+              "Databricks",
+              "SQL",
+              "Python",
+              "Analytics Engineering",
+              "Executive Reporting",
+              "Data Architecture",
+              "AI Analytics",
+            ].map((skill) => (
+              <span
+                key={skill}
+                className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm text-slate-200"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
-    </>
   );
 }

@@ -5,13 +5,13 @@ import posthog from "posthog-js";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
-export default function AkhilPortfolioSite() {
-  const links = {
-    github: "https://github.com/akhil993",
-    linkedin: "https://www.linkedin.com/in/akhil-devabhakthuni-609684182/",
-    product: "https://www.metricmendai.com",
-  };
-  const walkthroughSteps = [
+const links = {
+  github: "https://github.com/akhil993",
+  linkedin: "https://www.linkedin.com/in/akhil-devabhakthuni-609684182/",
+  product: "https://www.metricmendai.com",
+};
+
+const walkthroughSteps = [
   {
     title: "Landing Experience",
     image: "/portfolio/01-landing.png",
@@ -85,6 +85,7 @@ export default function AkhilPortfolioSite() {
       "Mira helps surface optimization opportunities by highlighting underperforming products.",
   },
 ];
+
 function ProductWalkthrough() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -103,7 +104,7 @@ function ProductWalkthrough() {
 
   return (
     <>
-      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+      <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-4 shadow-2xl shadow-black/30 ring-1 ring-white/5">
         <button
           type="button"
           onClick={() => {
@@ -114,11 +115,11 @@ function ProductWalkthrough() {
           }}
           className="group block w-full text-left"
         >
-          <div className="overflow-hidden rounded-xl border border-white/10">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
             <img
               src={active.image}
               alt={active.title}
-              className="h-[260px] w-full object-cover transition duration-300 group-hover:scale-[1.02] group-hover:opacity-90"
+              className="h-[260px] w-full object-cover transition duration-500 group-hover:scale-[1.03] group-hover:opacity-90"
             />
           </div>
 
@@ -153,11 +154,10 @@ function ProductWalkthrough() {
                 key={index}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`h-2 rounded-full transition ${
-                  index === activeIndex
+                className={`h-2 rounded-full transition ${index === activeIndex
                     ? "w-6 bg-violet-400"
                     : "w-2 bg-white/20 hover:bg-white/40"
-                }`}
+                  }`}
                 aria-label={`Go to step ${index + 1}`}
               />
             ))}
@@ -172,100 +172,140 @@ function ProductWalkthrough() {
           </button>
         </div>
       </div>
+
       {modalOpen &&
-  createPortal(
-    <div className="fixed inset-0 z-[99999] h-screen w-screen overflow-hidden bg-[#03040a] text-white">
-      <div className="flex h-16 items-center justify-between border-b border-white/10 bg-[#03040a] px-6">
-        <div>
-          <p className="text-xs text-violet-300">
-            Step {activeIndex + 1} of {walkthroughSteps.length}
-          </p>
-          <h3 className="text-lg font-semibold">{active.title}</h3>
-        </div>
+        createPortal(
+          <div className="fixed inset-0 z-[99999] h-screen w-screen overflow-hidden bg-[#03040a] text-white">
+            <div className="flex h-16 items-center justify-between border-b border-white/10 bg-[#03040a] px-6">
+              <div>
+                <p className="text-xs text-violet-300">
+                  Step {activeIndex + 1} of {walkthroughSteps.length}
+                </p>
+                <h3 className="text-lg font-semibold">{active.title}</h3>
+              </div>
 
-        <button
-          type="button"
-          onClick={() => setModalOpen(false)}
-          className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/20"
-        >
-          ✕ Close
-        </button>
-      </div>
-
-      <div className="grid h-[calc(100vh-64px)] w-screen grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-black">
-          <img
-            src={active.image}
-            alt={active.title}
-            className="max-h-full max-w-full object-contain"
-          />
-        </div>
-
-        <aside className="flex min-h-0 flex-col justify-between overflow-y-auto rounded-3xl border border-white/10 bg-white/[0.04] p-5">
-          <div>
-            <p className="text-sm uppercase tracking-widest text-slate-500">
-              Product walkthrough
-            </p>
-
-            <h2 className="mt-3 text-2xl font-semibold">{active.title}</h2>
-
-            <p className="mt-4 text-sm leading-6 text-slate-300">
-              {active.description}
-            </p>
-
-            <div className="mt-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-50">
-              Mira is evolving from query responses to full decision intelligence.
-              Current capabilities include governed analytics and insights, with
-              ongoing enhancements focused on recommendations and action planning.
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm hover:bg-white/20"
+              >
+                ✕ Close
+              </button>
             </div>
-          </div>
 
-          <div className="mt-6 space-y-4">
-            <div className="flex flex-wrap gap-1">
-              {walkthroughSteps.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setActiveIndex(index)}
-                  className={`h-2 rounded-full transition ${
-                    index === activeIndex
-                      ? "w-8 bg-violet-400"
-                      : "w-2 bg-white/20 hover:bg-white/40"
-                  }`}
+            <div className="grid h-[calc(100vh-64px)] w-screen grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="flex min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-black">
+                <img
+                  src={active.image}
+                  alt={active.title}
+                  className="max-h-full max-w-full object-contain"
                 />
-              ))}
-            </div>
+              </div>
 
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-sm text-white transition hover:bg-white/10"
-              >
-                ← Prev
-              </button>
+              <aside className="flex min-h-0 flex-col justify-between overflow-y-auto rounded-3xl border border-white/10 bg-white/[0.045] p-5 shadow-2xl ring-1 ring-white/5">
+                <div>
+                  <p className="text-sm uppercase tracking-widest text-slate-500">
+                    Founder project walkthrough
+                  </p>
 
-              <button
-                type="button"
-                onClick={nextStep}
-                className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white"
-              >
-                Next →
-              </button>
+                  <h2 className="mt-3 text-2xl font-semibold">
+                    {active.title}
+                  </h2>
+
+                  <p className="mt-4 text-sm leading-6 text-slate-300">
+                    {active.description}
+                  </p>
+
+                  <div className="mt-6 rounded-2xl border border-cyan-300/20 bg-cyan-300/10 p-4 text-sm leading-6 text-cyan-50">
+                    MetricMend is a personal founder project exploring governed
+                    metrics, semantic modeling, conversational analytics, and AI
+                    decision intelligence.
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <div className="flex flex-wrap gap-1">
+                    {walkthroughSteps.map((_, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setActiveIndex(index)}
+                        className={`h-2 rounded-full transition ${index === activeIndex
+                            ? "w-8 bg-violet-400"
+                            : "w-2 bg-white/20 hover:bg-white/40"
+                          }`}
+                        aria-label={`Go to step ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={prevStep}
+                      className="flex-1 rounded-xl border border-white/10 px-4 py-3 text-sm text-white transition hover:bg-white/10"
+                    >
+                      ← Prev
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={nextStep}
+                      className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-3 text-sm font-semibold text-white"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </div>
+              </aside>
             </div>
-          </div>
-        </aside>
-      </div>
-    </div>,
-    document.body
-  )}
-      
+          </div>,
+          document.body
+        )}
     </>
   );
 }
+
+function AccordionSection({
+  title,
+  eyebrow,
+  children,
+  defaultOpen = true,
+}: {
+  title: string;
+  eyebrow: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/60 shadow-xl shadow-black/20 ring-1 ring-white/5">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+      >
+        <div>
+          <p className="text-xs uppercase tracking-[0.24em] text-violet-300">
+            {eyebrow}
+          </p>
+          <h3 className="mt-2 text-xl font-semibold text-white">{title}</h3>
+        </div>
+
+        <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm text-slate-300">
+          {open ? "Collapse" : "Expand"}
+        </span>
+      </button>
+
+      {open && <div className="border-t border-white/10 px-6 pb-6 pt-5">{children}</div>}
+    </div>
+  );
+}
+
+export default function AkhilPortfolioSite() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050713] text-white">
-      {/* Premium background */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-10%] top-[-10%] h-[460px] w-[460px] rounded-full bg-violet-600/25 blur-[130px]" />
         <div className="absolute right-[-12%] top-[18%] h-[460px] w-[460px] rounded-full bg-cyan-500/20 blur-[130px]" />
@@ -274,47 +314,71 @@ function ProductWalkthrough() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl px-6 py-10 md:px-10">
-        {/* HERO */}
-        <header className="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-violet-950/30 backdrop-blur-xl md:p-10">
-          <div className="grid gap-8 md:grid-cols-[1.5fr_1fr] md:items-center">
+        <header className="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-2xl shadow-black/30 backdrop-blur-xl ring-1 ring-white/5 md:p-10">
+          <div className="grid gap-8 md:grid-cols-[1.45fr_1fr] md:items-center">
             <div>
               <p className="mb-4 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-sm text-violet-200">
-                Founder @ MetricMend • Senior Data & Analytics Engineer • AI Analytics Builder
+                Senior Data & Analytics Engineer • BI Architect • Cloud Analytics • AI Analytics
               </p>
 
               <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
-                Building the next layer of analytics:
+                I build analytics platforms
                 <span className="block bg-gradient-to-r from-violet-300 via-cyan-200 to-indigo-300 bg-clip-text text-transparent">
-                  BI + Cloud + AI Decision Intelligence
+                  executives can trust.
                 </span>
               </h1>
 
               <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-                Founder of MetricMend and Senior Data & Analytics Engineer with 9+
-                years of experience building enterprise analytics platforms, Power BI
-                semantic models, cloud data pipelines, and AI-powered decision
-                intelligence products.
+                I’m Akhil Devabhakthuni, a Senior Data & Analytics Engineer with
+                9+ years of experience building enterprise BI platforms, Power BI
+                semantic models, cloud data pipelines, and executive reporting systems.
               </p>
 
               <p className="mt-4 max-w-3xl leading-7 text-slate-400">
-                I bring a rare combination of hands-on engineering, BI architecture,
-                and product ownership — helping teams move from fragmented reports to
-                governed, scalable, AI-ready analytics systems.
+                My work sits at the intersection of data engineering, BI architecture,
+                stakeholder leadership, and product thinking. I help teams move from
+                fragmented reporting to governed, scalable, decision-ready analytics systems.
               </p>
 
-              <p className="mt-4 text-sm text-slate-400">
-                Power BI • Microsoft Fabric • Azure Data Factory • AWS Athena • Databricks • SQL • Python • Semantic Layer • AI Analytics
-              </p>
+              <div className="mt-5 flex flex-wrap gap-2 text-xs text-slate-300">
+                {[
+                  "Power BI",
+                  "Semantic Modeling",
+                  "Azure",
+                  "Microsoft Fabric",
+                  "AWS",
+                  "Databricks",
+                  "SQL",
+                  "Python",
+                  "Analytics Leadership",
+                  "AI Analytics",
+                ].map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
 
               <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="/resume"
+                  className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg shadow-violet-900/40 transition hover:scale-[1.02]"
+                  onClick={() => posthog.capture("resume_link_clicked")}
+                >
+                  View Resume
+                </Link>
+
                 <a
-                  href={links.product}
+                  href={links.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg shadow-violet-900/40 transition hover:scale-[1.02]"
-                  onClick={() => posthog.capture("product_clicked")}
+                  className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 transition hover:bg-white/10"
+                  onClick={() => posthog.capture("linkedin_clicked")}
                 >
-                  View MetricMend
+                  LinkedIn
                 </a>
 
                 <a
@@ -326,28 +390,20 @@ function ProductWalkthrough() {
                 >
                   GitHub
                 </a>
-
-                <Link
-                  href="/resume"
-                  className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 transition hover:bg-white/10"
-                  onClick={() => posthog.capture("resume_link_clicked")}
-                >
-                  Resume
-                </Link>
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 shadow-xl backdrop-blur">
+            <div className="rounded-3xl border border-white/10 bg-slate-950/70 p-6 shadow-2xl shadow-black/30 backdrop-blur ring-1 ring-white/5">
               <p className="text-sm uppercase tracking-widest text-slate-400">
-                Why teams hire me
+                Impact I Create
               </p>
 
               <ul className="mt-4 space-y-3">
                 {[
-                  "Modernize legacy BI into scalable cloud analytics platforms",
-                  "Build governed Power BI semantic models and KPI frameworks",
-                  "Design lakehouse-style architectures across Azure, Fabric, AWS, and Databricks",
-                  "Bring AI product thinking into analytics and decision intelligence",
+                  "Modernize fragmented reporting into governed analytics platforms",
+                  "Design trusted KPI frameworks and semantic models for business users",
+                  "Build scalable cloud analytics systems across Azure, Fabric, AWS, and Databricks",
+                  "Translate business problems into reliable data products and executive insights",
                 ].map((item) => (
                   <li
                     key={item}
@@ -361,7 +417,6 @@ function ProductWalkthrough() {
           </div>
         </header>
 
-        {/* VALUE CARDS */}
         <section className="mt-8 grid gap-6 md:grid-cols-4">
           {[
             {
@@ -369,21 +424,21 @@ function ProductWalkthrough() {
               text: "Enterprise BI, analytics engineering, and data platform delivery",
             },
             {
-              label: "Founder",
-              text: "Building MetricMend, an AI-powered analytics product",
+              label: "BI Architecture",
+              text: "Power BI semantic models, DAX, KPI governance, and executive reporting",
             },
             {
-              label: "Power BI",
-              text: "Semantic models, advanced DAX, OLS, incremental refresh",
+              label: "Cloud Platforms",
+              text: "Hands-on experience across on-prem, Azure, Fabric, AWS, and Databricks",
             },
             {
-              label: "Cloud + AI",
-              text: "Azure, Fabric, AWS, Databricks, OpenAI, and semantic layers",
+              label: "AI Mindset",
+              text: "Applying semantic layers and AI to make analytics more conversational and actionable",
             },
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.08]"
+              className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5 transition hover:-translate-y-1 hover:bg-white/[0.07]"
             >
               <p className="bg-gradient-to-r from-violet-300 to-cyan-200 bg-clip-text text-2xl font-bold text-transparent">
                 {item.label}
@@ -393,143 +448,302 @@ function ProductWalkthrough() {
           ))}
         </section>
 
-        {/* PLATFORM + TECH STACK */}
-        <section className="mt-8 grid gap-8 md:grid-cols-[1.5fr_1fr]">
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 shadow-xl backdrop-blur-xl">
-            <h2 className="text-2xl font-semibold">
-              MetricMend — AI Decision Intelligence Platform
-            </h2>
-
-            <p className="mt-3 text-slate-300">
-              MetricMend is my founder-led product initiative focused on the future
-              of business intelligence: governed metrics, natural-language analytics,
-              semantic modeling, and AI-generated insights that help teams make better
-              decisions faster.
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5">
+          <div className="max-w-3xl">
+            <p className="text-sm uppercase tracking-[0.24em] text-violet-300">
+              How I approach analytics
             </p>
-
-            <h3 className="mt-6 text-lg font-semibold">Platform Capabilities</h3>
-
-            <ul className="mt-3 space-y-2 text-slate-300">
-              <li>• Designed a governed semantic layer mapping business concepts to data models</li>
-              <li>• Built AI-driven query planning and SQL generation workflows</li>
-              <li>• Integrated AWS Athena for scalable, serverless query execution</li>
-              <li>• Explored Databricks-style lakehouse execution patterns for large-scale transformations</li>
-              <li>• Developed full-stack architecture using FastAPI and Next.js</li>
-              <li>• Enabled conversational analytics with follow-up context and auto-generated insights</li>
-            </ul>
-
-            <p className="mt-5 text-sm text-slate-400">
-              Designed to reduce dependency on static dashboards and make trusted
-              analytics accessible through natural language.
+            <h2 className="mt-3 text-3xl font-semibold">
+              Over the years, I've learned that analytics isn't really about dashboards or reports.
+            </h2>
+            <p className="mt-4 leading-7 text-slate-300">
+              They struggle because different teams define metrics differently, data lives in too many places, or nobody fully trusts the numbers.
+              The work I've enjoyed most throughout my career has been solving those problems by building trusted analytics foundations, scalable data platforms, and reporting experiences that people actually use.
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-xl backdrop-blur-xl">
-            <p className="text-sm uppercase tracking-widest text-slate-400">
-              Tech Stack
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              {[
-                "Python",
-                "FastAPI",
-                "React",
-                "Next.js",
-                "SQL",
-                "AWS Athena",
-                "Databricks",
-                "OpenAI",
-                "Semantic Modeling",
-                "Power BI",
-                "Microsoft Fabric",
-              ].map((skill) => (
-                <span
-                  key={skill}
-                  className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm text-slate-200"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                title: "Business-first analytics",
+                text: "I start with the decision, then design the data model, metric logic, and reporting experience around it.",
+              },
+              {
+                title: "Governed by design",
+                text: "I focus on trusted definitions, reusable semantic layers, secure access, and scalable reporting foundations.",
+              },
+              {
+                title: "Built for adoption",
+                text: "The best analytics system is one business teams actually use, understand, and trust.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-slate-950/60 p-5 ring-1 ring-white/5"
+              >
+                <h3 className="font-semibold text-white">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-400">{item.text}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* PRODUCT + POWER BI */}
-        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 shadow-xl backdrop-blur-xl">
-          <h2 className="text-2xl font-semibold">Product & Analytics Showcase</h2>
-
-          <p className="mt-3 max-w-2xl text-slate-300">
-            A combination of founder-led AI product development, cloud data
-            engineering, and enterprise-grade Power BI analytics work.
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5">
+          <p className="text-sm uppercase tracking-[0.24em] text-violet-300">
+            Selected Work
+          </p>
+          <h2 className="mt-3 text-3xl font-semibold">
+            Proof of experience across BI, semantic modeling, cloud analytics, and AI.
+          </h2>
+          <p className="mt-3 max-w-3xl text-slate-300">
+            These sections summarize the types of systems I have built and supported
+            throughout my analytics career. MetricMend is included lower as a personal
+            founder project, not the center of the portfolio.
           </p>
 
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
+          <div className="mt-7 space-y-5">
+            <AccordionSection
+              eyebrow="Business Intelligence"
+              title="Power BI & Executive Analytics"
+              defaultOpen
+            >
+              <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                <div>
+                  <p className="leading-7 text-slate-300">
+                    Over the course of my career, I have designed and delivered Power BI
+                    solutions for executive leadership, operational teams, finance,
+                    ecommerce, and business stakeholders.
+                  </p>
 
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    {[
+                      "Semantic model design",
+                      "Advanced DAX calculations",
+                      "Incremental refresh strategies",
+                      "Row-level and object-level security",
+                      "Executive KPI scorecards",
+                      "Self-service analytics enablement",
+                      "Performance optimization",
+                      "Governed metric definitions",
+                    ].map((item) => (
+                      <div
+                        key={item}
+                        className="rounded-xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm text-slate-300"
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
 
-              <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-  <h3 className="mb-3 text-lg font-semibold">AI Product Walkthrough</h3>
+                  <p className="mt-5 text-sm leading-6 text-slate-400">
+                    The goal has always been the same: provide trusted metrics that
+                    help leaders make faster, clearer business decisions.
+                  </p>
+                </div>
 
-  <ProductWalkthrough />
+                <div>
+                  <p className="mb-3 text-sm font-semibold text-white">
+                    Sample Power BI Dashboard
+                  </p>
 
+                  <div className="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-lg">
+                    <img
+                      src="/powerbi-preview.png"
+                      alt="Power BI dashboard preview"
+                      className="w-full rounded-xl"
+                    />
+                  </div>
 
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    <a
+                      href="/Sales Performance Dashboard.pdf"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white"
+                      onClick={() => posthog.capture("dashboard_pdf_viewed")}
+                    >
+                      View PDF
+                    </a>
 
-              
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
-              <h3 className="mb-3 text-lg font-semibold">Power BI Dashboard</h3>
-
-              <div className="overflow-hidden rounded-2xl border border-white/10 shadow-lg">
-                <img
-                  src="/powerbi-preview.png"
-                  alt="Power BI dashboard preview"
-                  className="w-full rounded-xl"
-                />
+                    <a
+                      href="/Sales Performance Dashboard.pdf"
+                      download
+                      className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                      onClick={() => posthog.capture("dashboard_pdf_downloaded")}
+                    >
+                      Download PDF
+                    </a>
+                  </div>
+                </div>
               </div>
+            </AccordionSection>
 
-              <div className="mt-3 flex flex-wrap gap-3">
-                <a
-                  href="/Sales Performance Dashboard.pdf"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white"
-                  onClick={() => posthog.capture("dashboard_pdf_viewed")}
-                >
-                  View Dashboard
-                </a>
+            <AccordionSection
+              eyebrow="Architecture"
+              title="Semantic Modeling & Data Architecture"
+              defaultOpen
+            >
+              <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+                <div>
+                  <p className="leading-7 text-slate-300">
+                    I have worked across on-premises, Azure, Microsoft Fabric, AWS,
+                    and modern cloud analytics environments to design semantic models
+                    and analytics architectures that make reporting consistent,
+                    scalable, and business-friendly.
+                  </p>
 
-                <a
-                  href="/Sales Performance Dashboard.pdf"
-                  download
-                  className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-                  onClick={() => posthog.capture("dashboard_pdf_downloaded")}
-                >
-                  Download PDF
-                </a>
+                  <p className="mt-4 leading-7 text-slate-400">
+                    My focus is creating a trusted analytics layer where facts,
+                    dimensions, relationships, calculations, and KPI definitions are
+                    reusable across teams instead of being rebuilt differently in every
+                    report.
+                  </p>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-5">
+                  <p className="text-sm uppercase tracking-widest text-slate-500">
+                    Experience Across
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {[
+                      "On-prem SQL Server",
+                      "Azure",
+                      "Microsoft Fabric",
+                      "AWS Athena",
+                      "Power BI",
+                      "Databricks",
+                      "Dimensional Modeling",
+                      "Star Schema",
+                      "KPI Governance",
+                      "Semantic Layer",
+                    ].map((skill) => (
+                      <span
+                        key={skill}
+                        className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm text-slate-200"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            </AccordionSection>
+
+            <AccordionSection
+              eyebrow="Cloud Analytics"
+              title="Cloud Data Platforms & Analytics Engineering"
+              defaultOpen
+            >
+              <p className="max-w-4xl leading-7 text-slate-300">
+                I have designed and supported analytics workflows across cloud and
+                hybrid environments, including Azure Data Factory, Microsoft Fabric,
+                AWS S3, AWS Athena, Databricks-aligned patterns, SQL-based
+                transformations, and data warehouse optimization.
+              </p>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {[
+                  {
+                    title: "Pipeline Design",
+                    text: "Reliable movement and transformation of business data across systems.",
+                  },
+                  {
+                    title: "Warehouse Optimization",
+                    text: "SQL design, model structure, and performance-minded analytics layers.",
+                  },
+                  {
+                    title: "Scalable Reporting",
+                    text: "Cloud-ready foundations that support BI, self-service, and executive reporting.",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-white/10 bg-white/[0.045] p-4"
+                  >
+                    <h4 className="font-semibold text-white">{item.title}</h4>
+                    <p className="mt-2 text-sm leading-6 text-slate-400">
+                      {item.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </AccordionSection>
+
+            <AccordionSection
+              eyebrow="Founder Project"
+              title="MetricMend — AI Analytics Exploration"
+              defaultOpen={false}
+            >
+              <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+                <div>
+                  <p className="leading-7 text-slate-300">
+                    MetricMend is a personal founder-led project where I am exploring
+                    the future of analytics through semantic modeling, governed metrics,
+                    conversational AI, and decision intelligence.
+                  </p>
+
+                  <p className="mt-4 leading-7 text-slate-400">
+                    It demonstrates my ability to combine product thinking, full-stack
+                    execution, data architecture, AI workflows, and analytics strategy —
+                    but it is intentionally positioned as a founder project, not the main
+                    proof of my professional experience.
+                  </p>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {[
+                      "Next.js",
+                      "FastAPI",
+                      "OpenAI",
+                      "AWS Athena",
+                      "Semantic Modeling",
+                      "Governed Metrics",
+                      "Mira Assistant",
+                    ].map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-sm text-slate-200"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+
+                  <a
+                    href={links.product}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-5 inline-flex rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
+                    onClick={() => posthog.capture("product_clicked")}
+                  >
+                    View MetricMend
+                  </a>
+                </div>
+
+                <ProductWalkthrough />
+              </div>
+            </AccordionSection>
           </div>
         </section>
 
-        {/* EXPERIENCE HIGHLIGHTS */}
         <section className="mt-8 grid gap-6 md:grid-cols-3">
           {[
             {
-              title: "Power BI & Semantic Models",
-              text: "Built enterprise Power BI semantic models, advanced DAX, OLS, incremental refresh, governed datasets, and executive reporting solutions.",
+              title: "Analytics Platform Leadership",
+              text: "Owned analytics ecosystems that support business stakeholders across operations, finance, ecommerce, and executive leadership.",
             },
             {
-              title: "Cloud Data Platforms",
-              text: "Designed lakehouse-style architectures across Azure, Microsoft Fabric, AWS S3, Athena, and Databricks-aligned processing patterns.",
+              title: "BI Transformation",
+              text: "Modernized reporting environments through semantic modeling, trusted KPIs, scalable datasets, and improved reporting workflows.",
             },
             {
-              title: "AI Analytics Product",
-              text: "Building MetricMend to convert natural language into governed metrics, insights, visualizations, and business recommendations.",
+              title: "Product Thinking",
+              text: "Approach analytics like a product: adoption, trust, usability, governance, and business value matter as much as the technology.",
             },
           ].map((card) => (
             <div
               key={card.title}
-              className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-xl backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/[0.08]"
+              className="rounded-3xl border border-white/10 bg-white/[0.045] p-6 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5 transition hover:-translate-y-1 hover:bg-white/[0.07]"
             >
               <h3 className="text-lg font-semibold">{card.title}</h3>
               <p className="mt-3 text-sm leading-6 text-slate-300">{card.text}</p>
@@ -537,12 +751,12 @@ function ProductWalkthrough() {
           ))}
         </section>
 
-        {/* CONTACT */}
-        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 shadow-xl backdrop-blur-xl">
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5">
           <h2 className="text-2xl font-semibold">Let’s Connect</h2>
 
           <p className="mt-3 text-slate-300">
-            Open to Senior Data & Analytics, BI, Data Platform, and AI Analytics roles.
+            Open to Senior Data & Analytics, BI, Data Platform, Analytics Engineering,
+            and AI Analytics roles.
           </p>
 
           <div className="mt-4 space-y-4 text-slate-300">
@@ -577,7 +791,7 @@ function ProductWalkthrough() {
 
             <div className="flex items-center gap-3">
               <span>🚀</span>
-              <p>Founder by product mindset. Engineer by core execution.</p>
+              <p>Business-first analytics. Governed systems. Executive-ready decisions.</p>
             </div>
           </div>
         </section>
