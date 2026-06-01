@@ -27,18 +27,6 @@ export type MiraMessage = {
   suggested_questions?: string[];
 };
 
-export type MiraVisualPayload = {
-  type?: "card" | "bar" | "column" | "line" | "area" | "donut" | "table" | "matrix";
-  title?: string;
-  subtitle?: string;
-  value?: string | number;
-  data?: Record<string, unknown>[];
-  xKey?: string;
-  yKey?: string;
-  categoryKey?: string;
-  valueKey?: string;
-};
-
 export type MiraAskPayload = {
   workspace_id: string;
   model_id: string;
@@ -77,42 +65,21 @@ export type MiraActionResponse = {
   data: Record<string, any>;
 };
 
-async function request<T>(
-  path: string,
-  options?: RequestInit,
-  timeoutMs = 300000,
-): Promise<T> {
-  const controller = new AbortController();
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options?.headers || {}),
+    },
+  });
 
-  const timeout = window.setTimeout(() => {
-    controller.abort();
-  }, timeoutMs);
-
-  try {
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      ...options,
-      signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options?.headers || {}),
-      },
-    });
-
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || "Mira request failed");
-    }
-
-    return response.json();
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("Mira request timed out.");
-    }
-
-    throw error;
-  } finally {
-    window.clearTimeout(timeout);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Mira request failed");
   }
+
+  return response.json();
 }
 
 export async function getMiraThreads(params: {
@@ -238,7 +205,6 @@ export async function exportMiraTable(
 
   link.href = url;
   link.download = payload.filename || "mira-table-export.csv";
-
   document.body.appendChild(link);
   link.click();
   link.remove();

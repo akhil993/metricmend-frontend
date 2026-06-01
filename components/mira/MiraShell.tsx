@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { Sparkles } from "lucide-react";
 
@@ -36,6 +36,7 @@ export default function MiraShell({ mode = "global" }: Props) {
     const supabase = createClient();
     const { activeWorkspace } = useAppWorkspace();
     const params = useParams<{ workspaceId?: string }>();
+    const sendingRef = useRef(false);
 
     const routeWorkspaceId =
         typeof params?.workspaceId === "string" ? params.workspaceId : null;
@@ -384,83 +385,73 @@ export default function MiraShell({ mode = "global" }: Props) {
         return "Mira couldn't complete the governed analysis.";
     }
 
-    async function handleSend(question: string) {
-        if (!effectiveWorkspaceId || !activeModelId || !userId) {
-            setError("Workspace, user, or semantic model missing.");
-            return;
-        }
+    async function handleSend(question: string, displayText?: string) {
+    if (sendingRef.current) return;
+    sendingRef.current = true;
 
-        const optimisticUserMessage: MiraMessage = {
-            id: crypto.randomUUID(),
-            role: "user",
-            content: question,
-            created_at: new Date().toISOString(),
-        };
-
-        setMessages((current) => [...current, optimisticUserMessage]);
-
-        setSending(true);
-        setError(null);
-
-        try {
-            const response = await askMira({
-                workspace_id: effectiveWorkspaceId,
-                model_id: activeModelId,
-                user_id: userId,
-                thread_id: activeThreadId,
-                question,
-            });
-
-            setActiveThreadId(response.thread_id);
-
-            const assistantMessage: MiraMessage = {
-                ...response.assistant_message,
-                summary: response.assistant_message.summary ?? response.summary,
-                insights:
-                    response.assistant_message.insights ?? response.insights ?? [],
-                recommendations:
-                    response.assistant_message.recommendations ??
-                    response.recommendations ??
-                    [],
-                visual_payload:
-                    response.assistant_message.visual_payload ?? response.visual_payload,
-                rows: response.assistant_message.rows ?? response.rows ?? [],
-                metadata: response.assistant_message.metadata ?? response.metadata,
-                suggested_questions:
-                    response.assistant_message.suggested_questions ??
-                    response.suggested_questions ??
-                    [],
-            };
-
-            setMessages((current) => [...current, assistantMessage]);
-
-            setThreads((current) => {
-                const existing = current.find(
-                    (thread) => thread.id === response.thread_id
-                );
-
-                if (!existing) {
-                    return current;
-                }
-
-                return [
-                    {
-                        ...existing,
-                        updated_at: new Date().toISOString(),
-                        title:
-                            existing.title === "New Chat"
-                                ? question.slice(0, 80)
-                                : existing.title,
-                    },
-                    ...current.filter((thread) => thread.id !== response.thread_id),
-                ];
-            });
-        } catch (err) {
-            setError(getFriendlyErrorMessage(err));
-        } finally {
-            setSending(false);
-        }
+    if (!effectiveWorkspaceId || !activeModelId || !userId) {
+        sendingRef.current = false;
+        setError("Workspace, user, or semantic model missing.");
+        return;
     }
+
+    const optimisticUserMessage: MiraMessage = {
+        id: crypto.randomUUID(),
+        role: "user",
+        content: displayText || question,
+        created_at: new Date().toISOString(),
+        metadata: displayText
+            ? {
+                execution_prompt: question,
+                display_text: displayText,
+            }
+            : undefined,
+    };
+
+    setMessages((current) => [...current, optimisticUserMessage]);
+    setSending(true);
+    setError(null);
+
+    try {
+        const response = await askMira({
+            workspace_id: effectiveWorkspaceId,
+            model_id: activeModelId,
+            user_id: userId,
+            thread_id: activeThreadId,
+            question,
+        });
+
+        setActiveThreadId(response.thread_id);
+
+        const freshMessages = await getMiraThreadMessages(response.thread_id);
+        setMessages(freshMessages);
+
+        setThreads((current) => {
+            const existing = current.find(
+                (thread) => thread.id === response.thread_id
+            );
+
+            if (!existing) return current;
+
+            return [
+                {
+                    ...existing,
+                    updated_at: new Date().toISOString(),
+                    title:
+                        existing.title === "New Chat"
+                            ? question.slice(0, 80)
+                            : existing.title,
+                },
+                ...current.filter((thread) => thread.id !== response.thread_id),
+            ];
+        });
+    } catch (err) {
+        setError(getFriendlyErrorMessage(err));
+    } finally {
+        sendingRef.current = false;
+        setSending(false);
+    }
+}
 
     return (
         <div className="fixed inset-0 z-40 flex bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-white">
@@ -534,9 +525,12 @@ export default function MiraShell({ mode = "global" }: Props) {
                 <MiraChatWorkspace
                     thread={activeThread}
                     messages={messages}
-                    loading={loadingMessages || loadingModels}
+                    loading={loadingMessages}
                     sending={sending}
                     error={error}
+                    workspaceId={effectiveWorkspaceId || undefined}
+                    userId={userId || undefined}
+                    threadId={activeThreadId || undefined}
                     onSend={handleSend}
                 />
             </main>

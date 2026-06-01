@@ -1,84 +1,151 @@
 export function getTableRows(visual: any) {
-  const rows = Array.isArray(visual?.data) ? visual.data : [];
-  return rows.map((row: any) => row?.raw ?? row);
+  const data = visual?.data || [];
+  const metadata = visual?.metadata || {};
+
+  return data.map((row: any) => {
+    const raw = row?.raw || row;
+
+    const category =
+      row?.category ??
+      raw?.category ??
+      row?.label ??
+      raw?.label ??
+      raw?.[metadata.display_column];
+
+    const categoryKey =
+      row?.category_key ??
+      raw?.category_key ??
+      row?.value_key ??
+      raw?.value_key ??
+      raw?.[metadata.key_column];
+
+    return {
+      ...raw,
+      category,
+      category_key: categoryKey,
+      key_column: row?.key_column ?? raw?.key_column ?? metadata.key_column,
+      value: row?.value ?? raw?.value,
+      raw,
+    };
+  });
 }
 
 export function getTableColumns(visual: any, rows: any[]) {
+  const metadata = visual?.metadata || {};
+
   if (Array.isArray(visual?.columns) && visual.columns.length) {
-    return visual.columns;
+    return visual.columns.filter(
+      (column: string) =>
+        column !== "raw" &&
+        column !== "key_column"
+    );
   }
 
   if (!rows.length) return [];
 
-  return Object.keys(rows[0]);
+  const columns = Object.keys(rows[0]).filter(
+    (column) =>
+      column !== "raw" &&
+      column !== "key_column"
+  );
+
+  const ordered = ["category_key", "category", "value"].filter((column) =>
+    columns.includes(column),
+  );
+
+  return [
+    ...ordered,
+    ...columns.filter((column) => !ordered.includes(column)),
+  ];
 }
 
-export function prettifyColumn(column: string) {
-  return column.replaceAll("_", " ");
+export function formatColumnLabel(column: string, metadata?: any) {
+  const visualMetadata = metadata?.visual_payload?.metadata || metadata || {};
+  const resolved =
+    metadata?.semantic_context?.resolved_entity ||
+    metadata?.resolved_entities ||
+    {};
+
+  if (column === "category_key" || column === "value_key") {
+    return visualMetadata.key_column || resolved.key_column || "ID";
+  }
+
+  if (column === "category") {
+    return (
+      visualMetadata.display_column ||
+      visualMetadata.display_label ||
+      resolved.dimension_label ||
+      visualMetadata.dimension ||
+      "Dimension"
+    );
+  }
+
+  if (column === "value") {
+    return resolved.metric_label || "Value";
+  }
+
+  return column
+    .replaceAll("_", " ")
+    .replace(/\w\S*/g, (text) =>
+      text.charAt(0).toUpperCase() + text.slice(1).toLowerCase(),
+    );
 }
 
-export function formatCellValue(value: any) {
+export function formatCellValue(value: any, column?: string) {
   if (value === null || value === undefined || value === "") return "—";
 
-  const raw = String(value);
+  const numeric = Number(value);
 
-  if (raw.includes("T")) return raw.slice(0, 10);
-  if (raw.length >= 10 && raw.includes("-")) return raw.slice(0, 10);
+  if (!Number.isNaN(numeric) && typeof value !== "boolean") {
+    const rounded = Math.round((numeric + Number.EPSILON) * 100) / 100;
 
-  return raw;
-}
-
-export function sortRows(rows: any[], column: string, direction: "asc" | "desc") {
-  return [...rows].sort((a, b) => {
-    const aValue = a?.[column];
-    const bValue = b?.[column];
-
-    const aNumber = Number(aValue);
-    const bNumber = Number(bValue);
-
-    let comparison = 0;
-
-    if (!Number.isNaN(aNumber) && !Number.isNaN(bNumber)) {
-      comparison = aNumber - bNumber;
-    } else {
-      comparison = String(aValue ?? "").localeCompare(String(bValue ?? ""));
+    if (
+      column === "value" ||
+      column?.includes("revenue") ||
+      column?.includes("sales") ||
+      column?.includes("amount")
+    ) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2,
+      }).format(rounded);
     }
 
-    return direction === "asc" ? comparison : -comparison;
-  });
+    return new Intl.NumberFormat("en-US", {
+      maximumFractionDigits: 2,
+    }).format(rounded);
+  }
+
+  return String(value);
 }
 
 export function rowsToCsv(rows: any[], columns: string[]) {
   const escapeCsv = (value: any) => {
     const text = String(value ?? "");
-    const escaped = text.replaceAll('"', '""');
-    return `"${escaped}"`;
+
+    if (text.includes(",") || text.includes('"') || text.includes("\n")) {
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+
+    return text;
   };
 
-  const header = columns.map(escapeCsv).join(",");
-
-  const body = rows.map((row) =>
-    columns.map((column) => escapeCsv(row?.[column])).join(",")
+  const exportColumns = columns.filter(
+    (column) =>
+      column !== "raw" &&
+      column !== "key_column"
   );
 
-  return [header, ...body].join("\n");
-}
+  const header = exportColumns.map(escapeCsv).join(",");
 
-export function downloadCsv(filename: string, csv: string) {
-  const blob = new Blob([csv], {
-    type: "text/csv;charset=utf-8;",
-  });
+  const body = rows
+    .map((row) =>
+      exportColumns
+        .map((column) => escapeCsv(row?.[column]))
+        .join(",")
+    )
+    .join("\n");
 
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  link.click();
-
-  URL.revokeObjectURL(url);
-}
-
-export async function copyText(text: string) {
-  await navigator.clipboard.writeText(text);
+  return [header, body].filter(Boolean).join("\n");
 }

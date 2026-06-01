@@ -11,7 +11,10 @@ type Props = {
   loading: boolean;
   sending: boolean;
   error: string | null;
-  onSend: (message: string) => void;
+  workspaceId?: string;
+  threadId?: string;
+  userId?: string;
+  onSend: (message: string, displayText?: string) => void;
 };
 
 export default function MiraChatWorkspace({
@@ -20,6 +23,9 @@ export default function MiraChatWorkspace({
   loading,
   sending,
   error,
+  workspaceId,
+  threadId,
+  userId,
   onSend,
 }: Props) {
   return (
@@ -35,10 +41,14 @@ export default function MiraChatWorkspace({
           <MiraMessageList
             messages={messages}
             sending={sending}
-            onDrilldown={onSend}
+            workspaceId={workspaceId}
+            userId={userId}
+            threadId={threadId || thread?.id}
+            onDrilldown={(executionPrompt, displayText) => {
+              onSend(executionPrompt, displayText);
+            }}
             onSendMessage={onSend}
           />
-          
         )}
       </div>
 

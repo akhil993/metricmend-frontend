@@ -7,7 +7,16 @@ import {
   UserRound,
 } from "lucide-react";
 
-import type { MiraMessage } from "@/lib/api/mira";
+import { useState } from "react";
+
+import {
+  createMiraDashboardCard,
+  exportMiraTable,
+  exportMiraVisual,
+  saveMiraInsight,
+  shareMiraArtifact,
+  type MiraMessage,
+} from "@/lib/api/mira";
 
 import MiraVisual from "./MiraVisual";
 
@@ -23,23 +32,33 @@ import MiraActions, {
 
 type Props = {
   message: MiraMessage;
-  onDrilldown?: (message: string) => void;
+  workspaceId?: string;
+  userId?: string;
+  threadId?: string;
+  onDrilldown?: (executionPrompt: string, displayText?: string) => void;
   onSendMessage?: (message: string) => void;
   sending?: boolean;
 };
 
 export default function MiraMessageBubble({
   message,
+  workspaceId,
+  userId,
+  threadId,
   onDrilldown,
   onSendMessage,
   sending = false,
 }: Props) {
   const isUser = message.role === "user";
 
-  // BEGIN: context extraction for action prompts
+  const [loadingAction, setLoadingAction] = useState<MiraActionKey | null>(null);
+  const [actionStatus, setActionStatus] = useState<string | null>(null);
+
   const metadata = message.metadata as
     | {
         metric?: string;
+        is_analytics_response?: boolean;
+        actions_enabled?: boolean;
         semantic_context?: {
           metrics?: string[];
           dimensions?: string[];
@@ -56,15 +75,29 @@ export default function MiraMessageBubble({
     | {
         metric?: string;
         type?: string;
+        title?: string;
       }
     | undefined;
 
+  const actionsEnabled =
+    !isUser &&
+    metadata?.actions_enabled !== false &&
+    metadata?.is_analytics_response !== false &&
+    Boolean(
+      message.visual_payload ||
+        message.rows?.length ||
+        message.insights?.length ||
+        message.recommendations?.length,
+    );
+
   const semanticContext = metadata?.semantic_context;
+
   const metricLabel =
     semanticContext?.metrics?.[0] ||
     metadata?.metric ||
     visualPayload?.metric ||
     "the current analysis";
+
   const dimensionLabel = semanticContext?.dimensions?.[0];
   const filters = semanticContext?.filters || [];
   const timeContext = semanticContext?.time_context;
@@ -86,16 +119,18 @@ export default function MiraMessageBubble({
   ]
     .filter(Boolean)
     .join("\n");
-  // END: context extraction for action prompts
 
   function handleDrilldown(payload: MiraDrilldownPayload) {
-    const question = buildDrilldownQuestion(payload);
+    const drilldown = buildDrilldownQuestion(payload);
 
-    if (!question || !onDrilldown) {
+    if (!drilldown || !onDrilldown) {
       return;
     }
 
-    onDrilldown(question);
+    onDrilldown(
+      drilldown.executionPrompt,
+      drilldown.displayText,
+    );
   }
 
   function handleSuggestedQuestion(question: string) {
@@ -106,21 +141,125 @@ export default function MiraMessageBubble({
     onSendMessage(question);
   }
 
-  function handleAction(action: MiraActionKey) {
+  async function handleAction(action: MiraActionKey) {
+    if (!message.id) {
+      return;
+    }
+
+    const realActionPayload = {
+      workspace_id: workspaceId || "",
+      user_id: userId || "",
+      thread_id: threadId || "",
+      message_id: message.id,
+      title:
+        visualPayload?.title ||
+        message.summary ||
+        message.content?.slice(0, 90) ||
+        "Mira analysis",
+    };
+
+    const requiresBackendAction =
+      action === "save_insight" ||
+      action === "share_workspace" ||
+      action === "export_visual" ||
+      action === "export_table" ||
+      action === "create_dashboard_card";
+
+    if (requiresBackendAction) {
+      if (!workspaceId || !userId || !threadId) {
+        setActionStatus(
+          "Unable to complete action because workspace context is missing.",
+        );
+        return;
+      }
+
+      try {
+        setLoadingAction(action);
+        setActionStatus(null);
+
+        if (action === "save_insight") {
+          await saveMiraInsight(realActionPayload);
+          setActionStatus("Insight saved.");
+        }
+
+        if (action === "share_workspace") {
+          const response = await shareMiraArtifact(realActionPayload);
+          const shareUrl = response.data?.thread_url;
+
+          if (shareUrl) {
+            await navigator.clipboard.writeText(shareUrl);
+            setActionStatus("Share link copied.");
+          } else {
+            setActionStatus("Share artifact created.");
+          }
+        }
+
+        if (action === "export_visual") {
+          const response = await exportMiraVisual(realActionPayload);
+
+          const blob = new Blob(
+            [
+              JSON.stringify(
+                response.data?.visual_payload || {},
+                null,
+                2,
+              ),
+            ],
+            {
+              type: "application/json",
+            },
+          );
+
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+
+          link.href = url;
+          link.download = "mira-visual-export.json";
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          window.URL.revokeObjectURL(url);
+          setActionStatus("Visual exported.");
+        }
+
+        if (action === "export_table") {
+          await exportMiraTable({
+            ...realActionPayload,
+            filename: "mira-table-export.csv",
+          });
+
+          setActionStatus("Table exported.");
+        }
+
+        if (action === "create_dashboard_card") {
+          await createMiraDashboardCard(realActionPayload);
+          setActionStatus("Dashboard card created.");
+        }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Action failed. Please try again.";
+
+        setActionStatus(errorMessage);
+      } finally {
+        setLoadingAction(null);
+      }
+
+      return;
+    }
+
     if (!onSendMessage) {
       return;
     }
 
     const prompts: Record<MiraActionKey, string> = {
-      save_insight: `Save this insight for future reference using the current analysis context.\n\n${actionContext}`,
-
-      share_workspace: `Prepare a workspace-shareable summary of this analysis. Include the metric, time context, key insights, recommendations, and any filters. Do not rerun the analysis unless necessary.\n\n${actionContext}`,
-
-      export_visual: `Prepare an export-ready visual package for ${metricLabel}. Include a clean title, subtitle, metric, time context, filters, key insights, and chart notes from the current result. Do not ask for a metric because the metric is provided below.\n\n${actionContext}`,
-
-      export_table: `Prepare an export-ready table package for ${metricLabel}. Include column descriptions, metric context, filters, time context, and a short interpretation of the current rows. Do not ask for a metric because the metric is provided below.\n\n${actionContext}`,
-
-      create_dashboard_card: `Create a dashboard card definition for ${metricLabel} using the current analysis. Include card title, metric, time context, visual type, filters, business interpretation, and recommended dashboard placement. Do not ask for a metric because the metric is provided below.\n\n${actionContext}`,
+      save_insight: "",
+      share_workspace: "",
+      export_visual: "",
+      export_table: "",
+      create_dashboard_card: "",
 
       root_cause_analysis: `Run root-cause analysis for ${metricLabel} using the current analysis as context. Focus on explaining the observed performance, strongest drivers, weakest segments, and recommended actions. Do not ask for a metric because the metric is provided below.\n\n${actionContext}`,
 
@@ -226,7 +365,7 @@ export default function MiraMessageBubble({
           </div>
         ) : null}
 
-        {!isUser ? (
+        {actionsEnabled ? (
           <div className="mt-5 border-t border-slate-200 pt-5 dark:border-white/10">
             <div className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
               Actions
@@ -235,7 +374,14 @@ export default function MiraMessageBubble({
             <MiraActions
               onAction={handleAction}
               disabled={sending}
+              loadingAction={loadingAction}
             />
+
+            {actionStatus ? (
+              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-medium text-slate-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200">
+                {actionStatus}
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>

@@ -12,7 +12,7 @@ type Props = {
   onDrilldown?: (payload: MiraDrilldownPayload) => void;
 };
 
-const MAX_CHART_ROWS = 12;
+const MAX_CHART_ROWS = 500;
 
 function normalizeText(value: any) {
   return String(value ?? "").toLowerCase();
@@ -102,33 +102,33 @@ function normalizeData(data: any[], visualType?: string) {
     const label =
       visualType === "line"
         ? row.period ??
-          row.date ??
-          row.month ??
-          raw?.period ??
-          raw?.date ??
-          raw?.month ??
-          row.label ??
-          raw?.label ??
-          `Period ${index + 1}`
+        row.date ??
+        row.month ??
+        raw?.period ??
+        raw?.date ??
+        raw?.month ??
+        row.label ??
+        raw?.label ??
+        `Period ${index + 1}`
         : row.label ??
-          row.category ??
-          row.customer ??
-          row.product ??
-          row.state ??
-          row.name ??
-          row.period ??
-          row.month ??
-          row.date ??
-          raw?.label ??
-          raw?.category ??
-          raw?.customer ??
-          raw?.product ??
-          raw?.state ??
-          raw?.name ??
-          raw?.period ??
-          raw?.month ??
-          raw?.date ??
-          `Item ${index + 1}`;
+        row.category ??
+        row.customer ??
+        row.product ??
+        row.state ??
+        row.name ??
+        row.period ??
+        row.month ??
+        row.date ??
+        raw?.label ??
+        raw?.category ??
+        raw?.customer ??
+        raw?.product ??
+        raw?.state ??
+        raw?.name ??
+        raw?.period ??
+        raw?.month ??
+        raw?.date ??
+        `Item ${index + 1}`;
 
     const value =
       row.value ??
@@ -162,11 +162,17 @@ export default function MiraVisual({ visual, metadata, onDrilldown }: Props) {
   if (!visual) return null;
 
   if (visual.type === "table") {
-    return <MiraTableVisual visual={visual} onDrilldown={onDrilldown} />;
+    return (
+      <MiraTableVisual
+        visual={visual}
+        metadata={metadata}
+        onDrilldown={onDrilldown}
+      />
+    );
   }
 
   const data = normalizeData(visual.data, visual.type);
-  const chartData = data.slice(0, MAX_CHART_ROWS);
+  const chartData = data.length > MAX_CHART_ROWS ? data.slice(0, MAX_CHART_ROWS) : data;
   const formatType = inferFormatType(visual, metadata, data);
 
   if (visual.type === "card") {

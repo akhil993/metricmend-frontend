@@ -26,36 +26,36 @@ const iconRegistry = {
     completed: Sparkles,
 };
 const fallbackSteps = [
-  {
-    event: "reviewing_model",
-    label: "Reviewing semantic model",
-    icon: Database,
-  },
-  {
-    event: "planning_intent",
-    label: "Understanding request",
-    icon: Brain,
-  },
-  {
-    event: "resolving_metric",
-    label: "Resolving metrics",
-    icon: ShieldCheck,
-  },
-  {
-    event: "running_query",
-    label: "Running analysis",
-    icon: LineChart,
-  },
-  {
-    event: "running_supporting_analysis",
-    label: "Checking supporting context",
-    icon: LineChart,
-  },
-  {
-    event: "generating_insights",
-    label: "Generating insights",
-    icon: Brain,
-  },
+    {
+        event: "reviewing_model",
+        label: "Reviewing semantic model",
+        icon: Database,
+    },
+    {
+        event: "planning_intent",
+        label: "Understanding request",
+        icon: Brain,
+    },
+    {
+        event: "resolving_metric",
+        label: "Resolving metrics",
+        icon: ShieldCheck,
+    },
+    {
+        event: "running_query",
+        label: "Running analysis",
+        icon: LineChart,
+    },
+    {
+        event: "running_supporting_analysis",
+        label: "Checking supporting context",
+        icon: LineChart,
+    },
+    {
+        event: "generating_insights",
+        label: "Generating insights",
+        icon: Brain,
+    },
 ];
 type ProgressEventName = keyof typeof iconRegistry;
 
@@ -113,23 +113,24 @@ export default function MiraThinkingSteps({ progressEvents }: Props) {
             .filter(Boolean) as NormalizedStep[];
     }, [progressEvents]);
 
-    const [fallbackIndex, setFallbackIndex] = useState(0);
+    const displaySteps = steps.length ? steps : fallbackSteps;
+    const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
-        if (steps.length) return;
+        setActiveIndex(0);
 
         const interval = window.setInterval(() => {
-            setFallbackIndex((current) =>
-                current >= fallbackSteps.length - 1 ? current : current + 1
+            setActiveIndex((current) =>
+                current >= displaySteps.length - 1 ? current : current + 1
             );
         }, 900);
 
         return () => window.clearInterval(interval);
-    }, [steps.length]);
+    }, [displaySteps.length]);
 
-    const displaySteps = steps.length ? steps : fallbackSteps;
-    const activeStep = displaySteps.at(-1) ?? fallbackSteps[fallbackIndex];
+    const activeStep = displaySteps[activeIndex] ?? displaySteps[0] ?? fallbackSteps[0];
     const ActiveIcon = activeStep?.icon || Sparkles;
+    const visibleSteps = displaySteps.slice(0, activeIndex + 1);
 
     return (
         <div className="max-w-2xl rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.055]">
@@ -154,9 +155,8 @@ export default function MiraThinkingSteps({ progressEvents }: Props) {
 
                     {displaySteps.length > 1 ? (
                         <div className="mt-3 flex flex-wrap gap-1.5">
-                            {displaySteps.slice(-4).map((step, index) => {
-                                const isLatest = index === displaySteps.slice(-4).length - 1;
-
+                            {visibleSteps.slice(-4).map((step, index) => {
+                                const isLatest = index === visibleSteps.slice(-4).length - 1;
                                 return (
                                     <span
                                         key={`${step.event}-${index}`}
