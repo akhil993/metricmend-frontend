@@ -155,8 +155,8 @@ function ProductWalkthrough() {
                 type="button"
                 onClick={() => setActiveIndex(index)}
                 className={`h-2 rounded-full transition ${index === activeIndex
-                    ? "w-6 bg-violet-400"
-                    : "w-2 bg-white/20 hover:bg-white/40"
+                  ? "w-6 bg-violet-400"
+                  : "w-2 bg-white/20 hover:bg-white/40"
                   }`}
                 aria-label={`Go to step ${index + 1}`}
               />
@@ -231,8 +231,8 @@ function ProductWalkthrough() {
                         type="button"
                         onClick={() => setActiveIndex(index)}
                         className={`h-2 rounded-full transition ${index === activeIndex
-                            ? "w-8 bg-violet-400"
-                            : "w-2 bg-white/20 hover:bg-white/40"
+                          ? "w-8 bg-violet-400"
+                          : "w-2 bg-white/20 hover:bg-white/40"
                           }`}
                         aria-label={`Go to step ${index + 1}`}
                       />
@@ -287,7 +287,7 @@ function AccordionSection({
         className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
       >
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-violet-300">
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">
             {eyebrow}
           </p>
           <h3 className="mt-2 text-xl font-semibold text-white">{title}</h3>
@@ -307,37 +307,37 @@ export default function AkhilPortfolioSite() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050713] text-white">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[-10%] top-[-10%] h-[460px] w-[460px] rounded-full bg-violet-600/25 blur-[130px]" />
-        <div className="absolute right-[-12%] top-[18%] h-[460px] w-[460px] rounded-full bg-cyan-500/20 blur-[130px]" />
-        <div className="absolute bottom-[-12%] left-[30%] h-[460px] w-[460px] rounded-full bg-indigo-600/20 blur-[130px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:64px_64px] opacity-20" />
+        <div className="absolute left-[-12%] top-[-10%] h-[480px] w-[480px] rounded-full bg-violet-600/25 blur-[140px]" />
+        <div className="absolute right-[-12%] top-[12%] h-[420px] w-[420px] rounded-full bg-cyan-500/20 blur-[130px]" />
+        <div className="absolute bottom-[10%] left-[10%] h-[360px] w-[360px] rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="absolute bottom-[-12%] right-[20%] h-[420px] w-[420px] rounded-full bg-amber-500/10 blur-[130px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:72px_72px] opacity-20" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl px-6 py-10 md:px-10">
         <header className="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-2xl shadow-black/30 backdrop-blur-xl ring-1 ring-white/5 md:p-10">
           <div className="grid gap-8 md:grid-cols-[1.45fr_1fr] md:items-center">
             <div>
-              <p className="mb-4 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-sm text-violet-200">
-                Senior Data & Analytics Engineer • BI Architect • Cloud Analytics • AI Analytics
+              <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-100">
+                Senior Data & Analytics Engineer • Power BI • Semantic Modeling • Cloud Analytics
               </p>
 
               <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
-                I build analytics platforms
-                <span className="block bg-gradient-to-r from-violet-300 via-cyan-200 to-indigo-300 bg-clip-text text-transparent">
-                  executives can trust.
+                Building trusted analytics platforms
+                <span className="block bg-gradient-to-r from-violet-300 via-cyan-200 to-emerald-200 bg-clip-text text-transparent">
+                  from data pipelines to executive decisions.
                 </span>
               </h1>
 
               <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-300">
-                I’m Akhil Devabhakthuni, a Senior Data & Analytics Engineer with
-                9+ years of experience building enterprise BI platforms, Power BI
-                semantic models, cloud data pipelines, and executive reporting systems.
+                I’m Akhil Devabhakthuni, a Senior Data & Analytics Engineer with 9+ years of
+                experience across Power BI, semantic modeling, cloud data platforms, analytics
+                engineering, and executive reporting.
               </p>
 
               <p className="mt-4 max-w-3xl leading-7 text-slate-400">
-                My work sits at the intersection of data engineering, BI architecture,
-                stakeholder leadership, and product thinking. I help teams move from
-                fragmented reporting to governed, scalable, decision-ready analytics systems.
+                I help teams modernize reporting, standardize metrics, build scalable data
+                foundations, and create analytics experiences that business users actually trust.
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2 text-xs text-slate-300">
@@ -450,15 +450,19 @@ export default function AkhilPortfolioSite() {
 
         <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5">
           <div className="max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.24em] text-violet-300">
-              How I approach analytics
+            <p className="text-sm uppercase tracking-[0.24em] text-emerald-300">
+              What I’ve learned building analytics platforms
             </p>
+
             <h2 className="mt-3 text-3xl font-semibold">
-              Over the years, I've learned that analytics isn't really about dashboards or reports.
+              Most teams do not struggle because they lack dashboards.
             </h2>
+
             <p className="mt-4 leading-7 text-slate-300">
-              They struggle because different teams define metrics differently, data lives in too many places, or nobody fully trusts the numbers.
-              The work I've enjoyed most throughout my career has been solving those problems by building trusted analytics foundations, scalable data platforms, and reporting experiences that people actually use.
+              They struggle when metrics are defined differently across teams, data lives in
+              too many places, or people do not fully trust the numbers. The work I enjoy most
+              is solving those problems by building clean semantic models, reliable data
+              foundations, and reporting experiences people actually use.
             </p>
           </div>
 
@@ -489,16 +493,18 @@ export default function AkhilPortfolioSite() {
         </section>
 
         <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 shadow-xl shadow-black/20 backdrop-blur-xl ring-1 ring-white/5">
-          <p className="text-sm uppercase tracking-[0.24em] text-violet-300">
+          <p className="text-sm uppercase tracking-[0.24em] text-amber-300">
             Selected Work
           </p>
+
           <h2 className="mt-3 text-3xl font-semibold">
-            Proof of experience across BI, semantic modeling, cloud analytics, and AI.
+            Experience across BI, semantic modeling, cloud analytics, and AI exploration.
           </h2>
+
           <p className="mt-3 max-w-3xl text-slate-300">
-            These sections summarize the types of systems I have built and supported
-            throughout my analytics career. MetricMend is included lower as a personal
-            founder project, not the center of the portfolio.
+            These sections highlight the types of analytics systems I have built and supported:
+            executive Power BI reporting, governed semantic models, cloud data platforms, and
+            a personal founder project exploring AI-powered analytics.
           </p>
 
           <div className="mt-7 space-y-5">
@@ -672,7 +678,7 @@ export default function AkhilPortfolioSite() {
 
             <AccordionSection
               eyebrow="Founder Project"
-              title="MetricMend — AI Analytics Exploration"
+              title="Founder Project: MetricMend"
               defaultOpen={false}
             >
               <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
