@@ -29,25 +29,34 @@ export default function AuthCard({ mode }: AuthCardProps) {
     setMessage(null);
 
     if (isSignup) {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
-      });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+      },
+      emailRedirectTo: `${window.location.origin}/login`,
+    },
+  });
 
-      if (error) {
-        setMessage(error.message);
-        setLoading(false);
-        return;
-      }
+  if (error) {
+    setMessage(error.message);
+    setLoading(false);
+    return;
+  }
 
-      router.push("/onboarding");
-      return;
-    }
+  if (!data.session) {
+    setMessage(
+      "Account created successfully. Please check your email and confirm your account before signing in."
+    );
+    setLoading(false);
+    return;
+  }
+
+  router.push("/onboarding");
+  return;
+}
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -88,7 +97,7 @@ export default function AuthCard({ mode }: AuthCardProps) {
                   onChange={(e) => setFullName(e.target.value)}
                   required
                   className="mt-2 w-full rounded-xl border border-white/10 bg-[#070810] px-4 py-3 text-white outline-none transition focus:border-cyan-300/50"
-                  placeholder="Akhil Devabhakthuni"
+                  placeholder="Full name"
                 />
               </div>
             )}
