@@ -1,6 +1,22 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "http://127.0.0.1:8000";
+import { getApiBaseUrl } from "@/lib/api/fetch";
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
+
+const API_BASE_URL = getApiBaseUrl();
+
+async function getAuthHeaders() {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "user-id": userId,
+  };
+}
 
 export type CompanyMemberRole =
   | "owner"
@@ -43,12 +59,12 @@ export async function listCompanyMembers(
   companyId: string,
   userId: string
 ): Promise<CompanyMember[]> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/company-members/company/${companyId}`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
       cache: "no-store",
     }
   );
@@ -73,13 +89,15 @@ export async function inviteCompanyMember(
   },
   currentUserId: string
 ) {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/company-members/invite`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "user-id": currentUserId,
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     }
@@ -103,13 +121,15 @@ export async function inviteCompanyMemberByEmail(
   },
   currentUserId: string
 ) {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/company-members/invite-by-email`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "user-id": currentUserId,
+        ...authHeaders,
       },
       body: JSON.stringify({
         ...payload,
@@ -133,13 +153,15 @@ export async function updateCompanyMemberRole(
   role: AssignableCompanyMemberRole,
   currentUserId: string
 ) {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/company-members/${memberId}/role`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "user-id": currentUserId,
+        ...authHeaders,
       },
       body: JSON.stringify({ role }),
     }
@@ -159,13 +181,13 @@ export async function removeCompanyMember(
   memberId: string,
   currentUserId: string
 ) {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/company-members/${memberId}`,
     {
       method: "DELETE",
-      headers: {
-        "user-id": currentUserId,
-      },
+      headers: authHeaders,
     }
   );
 

@@ -27,19 +27,19 @@ export type SemanticSnapshot = {
 };
 
 export async function getWorkspaceDeployments(workspaceId: string) {
-  return fetchJson<SemanticDeployment[]>(
+  return fetchJsonWithAuth<SemanticDeployment[]>(
     `/api/governance/deployments/${workspaceId}`
   );
 }
 
 export async function getModelSnapshots(modelId: string) {
-  return fetchJson<SemanticSnapshot[]>(
+  return fetchJsonWithAuth<SemanticSnapshot[]>(
     `/api/governance/snapshots/${modelId}`
   );
 }
 
 export async function getSnapshotDetail(snapshotId: string) {
-  return fetchJson<SemanticSnapshot>(
+  return fetchJsonWithAuth<SemanticSnapshot>(
     `/api/governance/snapshot/${snapshotId}`
   );
 }
@@ -57,7 +57,7 @@ export type WorkspaceGovernanceSummary = {
 export async function getWorkspaceGovernanceSummary(
   workspaceId: string
 ) {
-  return fetchJson<WorkspaceGovernanceSummary>(
+  return fetchJsonWithAuth<WorkspaceGovernanceSummary>(
     `/api/governance/workspaces/${workspaceId}/summary`
   );
 }
@@ -123,7 +123,7 @@ export async function createWorkspacePipeline(
 export async function getWorkspacePipelineSummary(
   workspaceId: string
 ) {
-  return fetchJson<WorkspacePipelineSummary>(
+  return fetchJsonWithAuth<WorkspacePipelineSummary>(
     `/api/governance/workspaces/${workspaceId}/pipeline`
   );
 }

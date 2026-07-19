@@ -21,9 +21,9 @@ import {
   createRelationship,
   updateRelationship,
   getModelDetail,
+  updateModelLayout,
   type SemanticModelColumn,
   type SemanticModelDetail,
-  type SemanticModelTable,
 } from "@/lib/api/models";
 
 type ActivePanel = "none" | "manual" | "manage";
@@ -132,14 +132,25 @@ export default function ModelRelationshipsPage() {
           target: relationship.to_table_id,
           sourceHandle: targetIsLeftOfSource ? "left-source" : "right-source",
           targetHandle: targetIsLeftOfSource ? "right-target" : "left-target",
-          type: "straight",
+          type: "smoothstep",
           animated: false,
-          label: "",
+          label: relationship.relationship_type.replaceAll("_", " "),
           markerEnd: {
             type: MarkerType.ArrowClosed,
+            color: "#22d3ee",
           },
           style: {
-            strokeWidth: 2,
+            stroke: "#22d3ee",
+            strokeWidth: 2.5,
+          },
+          labelStyle: {
+            fill: "#cffafe",
+            fontSize: 11,
+            fontWeight: 600,
+          },
+          labelBgStyle: {
+            fill: "#071018",
+            fillOpacity: 0.86,
           },
         };
       });
@@ -175,19 +186,19 @@ export default function ModelRelationshipsPage() {
     }
   }
   function handleEditRelationship(relationshipId: string) {
-  const relationship = detail?.relationships.find(
-    (item) => item.id === relationshipId
-  );
+    const relationship = detail?.relationships.find(
+      (item) => item.id === relationshipId
+    );
 
-  if (!relationship) return;
+    if (!relationship) return;
 
-  setSelectedRelationshipId(relationship.id);
-  setFromTableId(relationship.from_table_id);
-  setFromColumnId(relationship.from_column_id ?? "");
-  setToTableId(relationship.to_table_id);
-  setToColumnId(relationship.to_column_id ?? "");
-  setActivePanel("manual");
-}
+    setSelectedRelationshipId(relationship.id);
+    setFromTableId(relationship.from_table_id);
+    setFromColumnId(relationship.from_column_id ?? "");
+    setToTableId(relationship.to_table_id);
+    setToColumnId(relationship.to_column_id ?? "");
+    setActivePanel("manual");
+  }
 
   async function handleCreateManualRelationship() {
     if (!modelId) return;
@@ -199,33 +210,33 @@ export default function ModelRelationshipsPage() {
       if (!fromTableId || !fromColumnId || !toTableId || !toColumnId) {
         throw new Error("Select both tables and columns.");
       }
-    if (selectedRelationshipId) {
-      await updateRelationship(selectedRelationshipId, {
-        from_table_id: fromTableId,
-        from_column_id: fromColumnId,
-        to_table_id: toTableId,
-        to_column_id: toColumnId,
-        relationship_type: "many_to_one",
-        filter_direction: "single",
-      });
+      if (selectedRelationshipId) {
+        await updateRelationship(selectedRelationshipId, {
+          from_table_id: fromTableId,
+          from_column_id: fromColumnId,
+          to_table_id: toTableId,
+          to_column_id: toColumnId,
+          relationship_type: "many_to_one",
+          filter_direction: "single",
+        });
 
-    setMessage("Relationship updated.");
-    } else {
-    await createRelationship({
-      model_id: modelId,
-      from_table_id: fromTableId,
-      from_column_id: fromColumnId,
-      to_table_id: toTableId,
-      to_column_id: toColumnId,
-      relationship_type: "many_to_one",
-      filter_direction: "single",
-      is_auto_detected: false,
-    });
+        setMessage("Relationship updated.");
+      } else {
+        await createRelationship({
+          model_id: modelId,
+          from_table_id: fromTableId,
+          from_column_id: fromColumnId,
+          to_table_id: toTableId,
+          to_column_id: toColumnId,
+          relationship_type: "many_to_one",
+          filter_direction: "single",
+          is_auto_detected: false,
+        });
 
-  setMessage("Manual relationship created.");
-}
+        setMessage("Manual relationship created.");
+      }
 
-      setMessage("Manual relationship created.");
+      setSelectedRelationshipId(null);
       setFromTableId("");
       setFromColumnId("");
       setToTableId("");
@@ -266,6 +277,25 @@ export default function ModelRelationshipsPage() {
   const onConnect = useCallback((connection: Connection) => {
     setEdges((currentEdges) => addEdge(connection, currentEdges));
   }, []);
+
+  async function handleNodeDragStop(_: React.MouseEvent, node: Node) {
+    if (!modelId) return;
+
+    try {
+      await updateModelLayout(modelId, {
+        model_table_id: node.id,
+        x_position: node.position.x,
+        y_position: node.position.y,
+      });
+    } catch (error) {
+      console.error(error);
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Failed to save diagram layout."
+      );
+    }
+  }
 
   if (loading) {
     return <div className="p-6 text-sm text-slate-500">Loading semantic relationships...</div>;
@@ -430,11 +460,11 @@ export default function ModelRelationshipsPage() {
                       .{columnName(relationship.to_column_id)}
                     </div>
                     <button
-                    type="button"
+                      type="button"
                       onClick={() => handleEditRelationship(relationship.id)}
                       className="rounded-lg border border-cyan-200 px-3 py-1 text-xs font-semibold text-cyan-700 hover:bg-cyan-50 dark:border-cyan-300/20 dark:text-cyan-200 dark:hover:bg-cyan-300/10"
-                      >
-                         Edit
+                    >
+                      Edit
                       </button>
 
                     <button
@@ -480,6 +510,7 @@ export default function ModelRelationshipsPage() {
             setSelectedRelationshipId(edge.id);
             setActivePanel("manage");
           }}
+          onNodeDragStop={handleNodeDragStop}
         />
       </div>
     </div>

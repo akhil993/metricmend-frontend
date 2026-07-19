@@ -56,8 +56,7 @@ export default function InternalAccessGate({ children }: Props) {
 
           <p className="text-xs text-slate-500 dark:text-slate-500">
             MetricMend Internal is only available to users with
-            <span className="font-semibold"> is_metricmend_admin </span>
-            access.
+            an active MetricMend internal role.
           </p>
         </div>
       </div>

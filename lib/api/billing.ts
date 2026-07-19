@@ -1,17 +1,19 @@
-import { createClient } from "@/lib/supabase/client";
+import { getApiBaseUrl } from "@/lib/api/fetch";
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
 
-function apiBaseUrl() {
-  return process.env.NEXT_PUBLIC_API_BASE_URL;
-}
+async function getAuthHeaders() {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
 
-async function getAuthUserId() {
-  const supabase = createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user?.id;
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "user-id": userId,
+  };
 }
 
 export type BillingSummary = {
@@ -55,24 +57,42 @@ export type CompanyUsageSummary = {
     total: number;
   };
 };
-export async function getMyBilling(): Promise<BillingSummary> {
-  const userId = await getAuthUserId();
 
-  if (!userId) {
-    throw new Error("UNAUTHORIZED");
+async function readBillingError(
+  response: Response,
+  fallbackMessage: string
+) {
+  const error = await response.json().catch(() => null);
+
+  if (
+    error &&
+    typeof error === "object" &&
+    "detail" in error &&
+    typeof error.detail === "string"
+  ) {
+    return error.detail;
   }
 
+  return fallbackMessage;
+}
+
+export async function getMyBilling(): Promise<BillingSummary> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
-    `${apiBaseUrl()}/api/billing/me`,
+    `${getApiBaseUrl()}/api/billing/me`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
   if (!response.ok) {
-    throw new Error("FAILED_TO_LOAD_BILLING");
+    throw new Error(
+      await readBillingError(
+        response,
+        "Failed to load billing."
+      )
+    );
   }
 
   return response.json();
@@ -85,19 +105,15 @@ export async function createCreditPurchase({
   company_id: string;
   credits: number;
 }) {
-  const userId = await getAuthUserId();
-
-  if (!userId) {
-    throw new Error("UNAUTHORIZED");
-  }
+  const authHeaders = await getAuthHeaders();
 
   const response = await fetch(
-    `${apiBaseUrl()}/api/billing/purchase-credits`,
+    `${getApiBaseUrl()}/api/billing/purchase-credits`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "user-id": userId,
+        ...authHeaders,
       },
       body: JSON.stringify({
         company_id,
@@ -107,7 +123,12 @@ export async function createCreditPurchase({
   );
 
   if (!response.ok) {
-    throw new Error("FAILED_TO_PURCHASE_CREDITS");
+    throw new Error(
+      await readBillingError(
+        response,
+        "Failed to purchase credits."
+      )
+    );
   }
 
   return response.json();
@@ -126,19 +147,15 @@ export async function updateAutoCredits({
   auto_credit_top_up_amount: number;
   monthly_credit_hard_limit?: number | null;
 }) {
-  const userId = await getAuthUserId();
-
-  if (!userId) {
-    throw new Error("UNAUTHORIZED");
-  }
+  const authHeaders = await getAuthHeaders();
 
   const response = await fetch(
-    `${apiBaseUrl()}/api/billing/auto-credits/${companyId}`,
+    `${getApiBaseUrl()}/api/billing/auto-credits/${companyId}`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "user-id": userId,
+        ...authHeaders,
       },
       body: JSON.stringify({
         auto_credit_top_up_enabled,
@@ -150,7 +167,12 @@ export async function updateAutoCredits({
   );
 
   if (!response.ok) {
-    throw new Error("FAILED_TO_UPDATE_AUTO_CREDITS");
+    throw new Error(
+      await readBillingError(
+        response,
+        "Failed to update auto credits."
+      )
+    );
   }
 
   return response.json();

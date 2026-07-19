@@ -56,7 +56,7 @@ export default function OnboardingPage() {
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-80px)] max-w-5xl items-center">
         <div className="grid w-full gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <section className="flex flex-col justify-center">
-            <MetricMendLogo />
+            <MetricMendLogo variant="inverse" />
 
             <div className="mt-10 inline-flex w-fit rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm text-cyan-100">
               Launchpad setup

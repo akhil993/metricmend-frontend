@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Sparkles } from "lucide-react";
 
 type Props = {
   disabled?: boolean;
@@ -50,9 +50,7 @@ export default function MiraInputBar({
     submit();
   }
 
-  function handleKeyDown(
-    event: KeyboardEvent<HTMLTextAreaElement>
-  ) {
+  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
 
@@ -63,28 +61,33 @@ export default function MiraInputBar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end gap-3 rounded-3xl border border-slate-200 bg-white p-3 shadow-sm transition dark:border-white/10 dark:bg-white/[0.05]"
+      className="rounded-[28px] border border-slate-200 bg-white p-2 shadow-[0_18px_50px_rgba(15,23,42,0.10)] transition focus-within:border-cyan-400/60 focus-within:shadow-[0_22px_60px_rgba(8,145,178,0.14)] dark:border-white/10 dark:bg-[#0f172a] dark:shadow-[0_20px_70px_rgba(0,0,0,0.45)]"
     >
-      <textarea
-        ref={textareaRef}
-        value={value}
-        disabled={disabled}
-        rows={1}
-        onChange={(event) =>
-          setValue(event.target.value)
-        }
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className="max-h-40 min-h-11 flex-1 resize-none bg-transparent px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-white dark:placeholder:text-slate-500"
-      />
+      <div className="flex items-end gap-2">
+        <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-white/[0.08] dark:text-slate-300 sm:flex">
+          <Sparkles className="h-4 w-4" />
+        </div>
 
-      <button
-        type="submit"
-        disabled={disabled || !value.trim()}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
-      >
-        <ArrowUp className="h-5 w-5" />
-      </button>
+        <textarea
+          ref={textareaRef}
+          value={value}
+          disabled={disabled}
+          rows={1}
+          onChange={(event) => setValue(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="max-h-40 min-h-11 flex-1 resize-none bg-transparent px-3 py-3 text-[15px] leading-6 text-slate-950 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-50 dark:placeholder:text-slate-500"
+        />
+
+        <button
+          type="submit"
+          disabled={disabled || !value.trim()}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white dark:disabled:bg-white/10 dark:disabled:text-slate-600"
+          aria-label="Send message"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </button>
+      </div>
     </form>
   );
 }

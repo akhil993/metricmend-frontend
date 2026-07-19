@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 
 import { useAppWorkspace } from "@/components/app/AppWorkspaceContext";
-import { getModelDetail } from "@/lib/api/models";
+import {
+  getModelDetail,
+  getModelSecuritySettings,
+  type SemanticModelSecuritySettings,
+} from "@/lib/api/models";
 import { getModelMetrics, type SemanticMetric } from "@/lib/api/metrics";
 
 import TimeIntelligenceSettingsPanel from "./TimeIntelligenceSettingsPanel";
@@ -58,6 +62,8 @@ export default function MetricsShell({ modelId }: Props) {
   const [activeTab, setActiveTab] = useState<MetricsTab>("builder");
   const [modelDetail, setModelDetail] = useState<any>(null);
   const [metrics, setMetrics] = useState<SemanticMetric[]>([]);
+  const [modelSecurity, setModelSecurity] =
+    useState<SemanticModelSecuritySettings | null>(null);
   const [selectedMetric, setSelectedMetric] = useState<SemanticMetric | null>(
     null
   );
@@ -65,43 +71,6 @@ export default function MetricsShell({ modelId }: Props) {
     null
   );
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-  function handleUnhandledRejection(
-    event: PromiseRejectionEvent
-  ) {
-    const reason = event.reason;
-
-    const message =
-      typeof reason === "string"
-        ? reason
-        : reason?.message ||
-          reason?.msg ||
-          reason?.type ||
-          "";
-
-    const normalized = String(message).toLowerCase();
-
-    if (
-      normalized.includes("manually canceled") ||
-      normalized.includes("cancelation") ||
-      normalized.includes("cancelled")
-    ) {
-      event.preventDefault();
-    }
-  }
-
-  window.addEventListener(
-    "unhandledrejection",
-    handleUnhandledRejection
-  );
-
-  return () => {
-    window.removeEventListener(
-      "unhandledrejection",
-      handleUnhandledRejection
-    );
-  };
-}, []);
 
   useEffect(() => {
     if (!activeWorkspace.workspace_id) {
@@ -114,9 +83,10 @@ export default function MetricsShell({ modelId }: Props) {
       try {
         setLoading(true);
 
-        const [modelResponse, metricsResponse] = await Promise.all([
+        const [modelResponse, metricsResponse, securityResponse] = await Promise.all([
           getModelDetail(modelId),
           getModelMetrics(modelId),
+          getModelSecuritySettings(modelId).catch(() => null),
         ]);
 
         if (cancelled) {
@@ -125,6 +95,7 @@ export default function MetricsShell({ modelId }: Props) {
 
         setModelDetail(modelResponse);
         setMetrics(metricsResponse);
+        setModelSecurity(securityResponse);
       } catch (error: any) {
         const message =
           error?.message ||
@@ -216,7 +187,7 @@ export default function MetricsShell({ modelId }: Props) {
           <Database className="h-4 w-4" />
           <span className="font-medium">Model</span>
           <span className="max-w-[180px] truncate text-slate-700 dark:text-slate-200">
-            {modelDetail.name ?? modelId}
+            {modelDetail.model?.name ?? modelId}
           </span>
         </div>
       </header>
@@ -290,6 +261,9 @@ export default function MetricsShell({ modelId }: Props) {
                   modelTables={modelDetail.tables ?? []}
                   modelColumns={modelDetail.model_columns ?? []}
                   metrics={metrics}
+                  metricCreationEnabled={
+                    modelSecurity?.metric_creation_enabled !== false
+                  }
                   onMetricCreated={handleMetricCreated}
                 />
               )}

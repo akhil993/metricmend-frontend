@@ -1,5 +1,22 @@
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL;
+
+async function getAuthHeaders() {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "user-id": userId,
+  };
+}
 
 export type TimeIntelligenceSettings = {
   workspace_id: string;
@@ -50,8 +67,13 @@ export async function getTimeIntelligenceSettings(
   workspaceId: string,
   modelId: string
 ): Promise<SettingsResponse> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
-    `${API_BASE_URL}/api/time-intelligence/settings/${workspaceId}/${modelId}`
+    `${API_BASE_URL}/api/time-intelligence/settings/${workspaceId}/${modelId}`,
+    {
+      headers: authHeaders,
+    }
   );
 
   if (!response.ok) {
@@ -66,12 +88,15 @@ export async function getTimeIntelligenceSettings(
 export async function saveTimeIntelligenceSettings(
   payload: TimeIntelligenceSettings
 ): Promise<SettingsResponse> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/time-intelligence/settings`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     }
@@ -115,12 +140,15 @@ export type GenerateTimeCalcsResponse = {
 export async function generateTimeCalculations(
   payload: GenerateTimeCalcsPayload
 ): Promise<GenerateTimeCalcsResponse> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/time-intelligence/generate`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     }

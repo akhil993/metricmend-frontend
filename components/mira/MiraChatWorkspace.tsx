@@ -14,6 +14,9 @@ type Props = {
   workspaceId?: string;
   threadId?: string;
   userId?: string;
+  workspaceLabel?: string;
+  modelName?: string | null;
+  thinkingQuestion?: string | null;
   onSend: (message: string, displayText?: string) => void;
 };
 
@@ -26,10 +29,13 @@ export default function MiraChatWorkspace({
   workspaceId,
   threadId,
   userId,
+  workspaceLabel,
+  modelName,
+  thinkingQuestion,
   onSend,
 }: Props) {
   return (
-    <section className="flex min-h-0 flex-1 flex-col bg-slate-50 dark:bg-transparent">
+    <section className="flex min-h-0 flex-1 flex-col bg-slate-50 dark:bg-[#070810]">
       <div className="flex min-h-0 flex-1 flex-col">
         {loading ? (
           <div className="flex flex-1 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
@@ -44,6 +50,9 @@ export default function MiraChatWorkspace({
             workspaceId={workspaceId}
             userId={userId}
             threadId={threadId || thread?.id}
+            workspaceLabel={workspaceLabel}
+            modelName={modelName}
+            thinkingQuestion={thinkingQuestion}
             onDrilldown={(executionPrompt, displayText) => {
               onSend(executionPrompt, displayText);
             }}
@@ -53,21 +62,21 @@ export default function MiraChatWorkspace({
       </div>
 
       {error ? (
-        <div className="mx-auto w-full max-w-4xl px-6 pb-2">
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-100">
+        <div className="mx-auto w-full max-w-3xl px-4 pb-3 sm:px-6">
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-100">
             {error}
           </div>
         </div>
       ) : null}
 
-      <div className="border-t border-slate-200 bg-white/90 px-6 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/60">
-        <div className="mx-auto max-w-4xl">
+      <div className="border-t border-slate-200/80 bg-slate-50/95 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-[#070810]/90 sm:px-6">
+        <div className="mx-auto max-w-3xl">
           <MiraInputBar
             disabled={sending}
             placeholder={
               thread
-                ? "Ask a follow-up about your metrics..."
-                : "Ask Mira about your governed metrics..."
+                ? "Ask a follow-up..."
+                : "Message Mira..."
             }
             onSend={onSend}
           />

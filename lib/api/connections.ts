@@ -1,5 +1,22 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+import { getApiBaseUrl } from "@/lib/api/fetch";
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
+
+const API_BASE_URL = getApiBaseUrl();
+
+async function getAuthHeaders() {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "user-id": userId,
+  };
+}
 
 export type ConnectorField = {
   key: string;
@@ -60,10 +77,13 @@ export async function testConnection(payload: {
   credentials: Record<string, unknown>;
   config: Record<string, unknown>;
 }) {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(`${API_BASE_URL}/api/connections/test`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...authHeaders,
     },
     body: JSON.stringify(payload),
   });
@@ -83,10 +103,13 @@ export async function saveConnection(payload: {
   config: Record<string, unknown>;
   created_by?: string | null;
 }): Promise<SavedConnection> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(`${API_BASE_URL}/api/connections`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...authHeaders,
     },
     body: JSON.stringify(payload),
   });
@@ -102,9 +125,12 @@ export async function saveConnection(payload: {
 export async function getWorkspaceConnections(
   workspaceId: string
 ): Promise<SavedConnection[]> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(
     `${API_BASE_URL}/api/connections/workspace/${workspaceId}`,
     {
+      headers: authHeaders,
       cache: "no-store",
     }
   );
@@ -129,10 +155,13 @@ export async function updateConnection(
     status?: string;
   }
 ): Promise<SavedConnection> {
+  const authHeaders = await getAuthHeaders();
+
   const response = await fetch(`${API_BASE_URL}/api/connections/${connectionId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      ...authHeaders,
     },
     body: JSON.stringify(payload),
   });

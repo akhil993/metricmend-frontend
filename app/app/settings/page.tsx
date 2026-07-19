@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   Activity,
   ArrowUpRight,
+  Crown,
   FileSearch,
   Shield,
   Sparkles,
@@ -26,6 +27,7 @@ import { createClient } from "@/lib/supabase/client";
 
 type AdminMeResponse = {
   is_metricmend_admin: boolean;
+  internal_role?: string | null;
   profile?: unknown | null;
 };
 
@@ -35,6 +37,8 @@ export default function SettingsPage() {
 
   const [isMetricMendAdmin, setIsMetricMendAdmin] =
     useState(false);
+  const [internalRole, setInternalRole] =
+    useState<string | null>(null);
 
   const [loading, setLoading] =
     useState(true);
@@ -66,6 +70,7 @@ export default function SettingsPage() {
       setIsMetricMendAdmin(
         Boolean(adminMe?.is_metricmend_admin)
       );
+      setInternalRole(adminMe?.internal_role ?? null);
     } catch (error) {
       setError(
         error instanceof Error
@@ -161,7 +166,7 @@ export default function SettingsPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-white px-4 py-2 text-sm text-cyan-700 dark:border-cyan-300/20 dark:bg-white/10 dark:text-cyan-100">
                 <Sparkles className="h-4 w-4" />
-                MetricMend admin
+                MetricMend internal
               </div>
 
               <h2 className="mt-6 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
@@ -173,7 +178,10 @@ export default function SettingsPage() {
                 internal control plane for
                 tenants, usage, plans,
                 system health, audit logs,
-                and AI operations.
+                and AI operations. Your current internal role is{" "}
+                <span className="font-semibold">
+                  {internalRole ?? "internal_admin"}
+                </span>.
               </p>
             </div>
 
@@ -182,6 +190,37 @@ export default function SettingsPage() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
             >
               Open internal console
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
+      {internalRole === "founder" ? (
+        <section className="rounded-[2rem] border border-orange-200 bg-white p-8 shadow-sm dark:border-orange-300/20 dark:bg-white/[0.045]">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="rounded-2xl bg-orange-50 p-3 text-orange-700 dark:bg-orange-400/10 dark:text-orange-200">
+                <Crown className="h-5 w-5" />
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                  Founder Settings
+                </h2>
+
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-400">
+                  Review the founder operating view from the settings area
+                  when your profile is marked as a MetricMend admin.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/app/settings/founder"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-medium text-slate-800 transition hover:bg-white hover:shadow-sm dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+            >
+              Founder
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>

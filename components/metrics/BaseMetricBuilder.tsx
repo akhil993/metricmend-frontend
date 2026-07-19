@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Plus, Save, X } from "lucide-react";
-import { createMetric, MetricType } from "@/lib/api/metrics";
+import { createMetric, UserCreatableMetricType } from "@/lib/api/metrics";
 
 type ExpressionToken =
   | {
@@ -254,7 +254,7 @@ export default function BaseMetricBuilder({ model, onCreated }: Props) {
       display_name: displayName || metricName,
       description,
 
-      metric_type: "base" as MetricType,
+      metric_type: "base" as UserCreatableMetricType,
       aggregation_type: aggregationType,
 
       source_table_id: selectedTableId || null,

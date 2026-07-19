@@ -147,11 +147,9 @@ export default function LaunchpadPage() {
     },
   ];
 
-  const miraLimit =
-  summary.limits.included_mira_credits;
-
-  const miraUsed =
-    summary.counts.mira_questions_this_month;
+  const miraUsed = summary.counts.mira_credits_used;
+  const miraTotal = summary.counts.mira_credits_total;
+  const miraRemaining = summary.counts.mira_credits_remaining;
 
   return (
     <div className="space-y-6">
@@ -261,12 +259,16 @@ export default function LaunchpadPage() {
 
           <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/[0.04]">
             <p className="text-sm text-slate-500 dark:text-neutral-500">
-              Mira questions this month
+              Mira credits
             </p>
 
             <p className="mt-1 text-2xl font-semibold text-slate-950 dark:text-white">
               {miraUsed}
-              {miraLimit ? ` / ${miraLimit}` : ""}
+              {miraTotal ? ` / ${miraTotal}` : ""}
+            </p>
+
+            <p className="mt-1 text-xs text-slate-500 dark:text-neutral-500">
+              {miraRemaining} remaining
             </p>
           </div>
 

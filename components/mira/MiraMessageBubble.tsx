@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  CheckCircle2,
   Lightbulb,
   Sparkles,
   UserRound,
@@ -59,6 +60,13 @@ export default function MiraMessageBubble({
         metric?: string;
         is_analytics_response?: boolean;
         actions_enabled?: boolean;
+        progress_events?: Array<
+          | string
+          | {
+              event?: string;
+              label?: string;
+            }
+        >;
         semantic_context?: {
           metrics?: string[];
           dimensions?: string[];
@@ -91,6 +99,7 @@ export default function MiraMessageBubble({
     );
 
   const semanticContext = metadata?.semantic_context;
+  const progressEvents = metadata?.progress_events || [];
 
   const metricLabel =
     semanticContext?.metrics?.[0] ||
@@ -283,7 +292,7 @@ export default function MiraMessageBubble({
       ].join(" ")}
     >
       {!isUser ? (
-        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-indigo-600 dark:border-white/10 dark:bg-indigo-500/15 dark:text-indigo-200">
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950">
           <Sparkles className="h-4 w-4" />
         </div>
       ) : null}
@@ -291,14 +300,14 @@ export default function MiraMessageBubble({
       <div
         className={[
           isUser
-            ? "max-w-[72%] rounded-3xl border px-5 py-4 shadow-sm"
-            : "w-full max-w-4xl rounded-3xl border px-5 py-4 shadow-sm",
+            ? "max-w-[78%] rounded-[22px] px-4 py-3 shadow-sm"
+            : "w-full max-w-3xl rounded-[22px] px-0 py-0",
           isUser
-            ? "border-indigo-500 bg-indigo-500 text-white"
-            : "border-slate-200 bg-white text-slate-800 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-100",
+            ? "bg-slate-950 text-white dark:bg-slate-100 dark:text-slate-950"
+            : "text-slate-800 dark:text-slate-100",
         ].join(" ")}
       >
-        <p className="whitespace-pre-wrap text-sm leading-6">
+        <p className="whitespace-pre-wrap text-[15px] leading-7">
           {message.content}
         </p>
 
@@ -313,16 +322,16 @@ export default function MiraMessageBubble({
         ) : null}
 
         {!isUser && message.insights?.length ? (
-          <div className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-400/20 dark:bg-indigo-400/10">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-100">
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
               <BarChart3 className="h-4 w-4" />
               Key Insights
             </div>
 
-            <ul className="space-y-2 text-sm leading-6 text-indigo-900 dark:text-indigo-50">
+            <ul className="space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
               {message.insights.map((item, index) => (
                 <li key={`${item}-${index}`} className="flex gap-2">
-                  <span className="mt-0.5 text-indigo-600 dark:text-indigo-300">
+                  <span className="mt-0.5 text-sky-600 dark:text-sky-300">
                     •
                   </span>
                   <span>{item}</span>
@@ -333,13 +342,13 @@ export default function MiraMessageBubble({
         ) : null}
 
         {!isUser && message.recommendations?.length ? (
-          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-400/20 dark:bg-emerald-400/10">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-emerald-800 dark:text-emerald-100">
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
               <Lightbulb className="h-4 w-4" />
               Recommendations
             </div>
 
-            <ul className="space-y-2 text-sm leading-6 text-emerald-900 dark:text-emerald-50">
+            <ul className="space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
               {message.recommendations.map((item, index) => (
                 <li key={`${item}-${index}`} className="flex gap-2">
                   <span className="mt-0.5 text-emerald-600 dark:text-emerald-300">
@@ -349,6 +358,39 @@ export default function MiraMessageBubble({
                 </li>
               ))}
             </ul>
+          </div>
+        ) : null}
+
+        {!isUser && progressEvents.length ? (
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              Analysis process
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {progressEvents.slice(0, 8).map((event, index) => {
+                const label =
+                  typeof event === "string"
+                    ? event
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (letter) => letter.toUpperCase())
+                    : event.label ||
+                      event.event
+                        ?.replace(/_/g, " ")
+                        .replace(/\b\w/g, (letter) => letter.toUpperCase()) ||
+                      "Completed step";
+
+                return (
+                  <span
+                    key={`${label}-${index}`}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-300"
+                  >
+                    {label}
+                  </span>
+                );
+              })}
+            </div>
           </div>
         ) : null}
 
@@ -378,7 +420,7 @@ export default function MiraMessageBubble({
             />
 
             {actionStatus ? (
-              <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs font-medium text-slate-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200">
+              <div className="mt-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-medium text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200">
                 {actionStatus}
               </div>
             ) : null}
@@ -387,7 +429,7 @@ export default function MiraMessageBubble({
       </div>
 
       {isUser ? (
-        <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-slate-700 dark:border-white/10 dark:bg-white/[0.08] dark:text-slate-200">
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-slate-200">
           <UserRound className="h-4 w-4" />
         </div>
       ) : null}

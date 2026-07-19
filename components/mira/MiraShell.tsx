@@ -8,21 +8,24 @@ import { useAppWorkspace } from "@/components/app/AppWorkspaceContext";
 import AppAccountMenu from "@/components/app/AppAccountMenu";
 import { createClient } from "@/lib/supabase/client";
 import {
+    askGlobalMira,
     askMira,
     createMiraThread,
     deleteMiraThread,
+    getGlobalMiraThreads,
     getMiraThreadMessages,
     getMiraThreads,
     type MiraMessage,
     type MiraThread,
 } from "@/lib/api/mira";
-import { getWorkspaceModels } from "@/lib/api/models";
+import { getAccessibleModels, getWorkspaceModels } from "@/lib/api/models";
 
 import MiraChatSidebar from "./MiraChatSidebar";
 import MiraChatWorkspace from "./MiraChatWorkspace";
 
 type SemanticModel = {
     id: string;
+    workspace_id: string;
     name: string;
 };
 
@@ -32,18 +35,42 @@ type Props = {
     mode?: MiraShellMode;
 };
 
+function getGreetingResponse(message: string) {
+    const normalized = message
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\s']/g, "")
+        .replace(/\s+/g, " ");
+
+    if (!normalized) {
+        return null;
+    }
+
+    const greetingPatterns = [
+        /^(hi|hello|hey|heya|yo|good morning|good afternoon|good evening)$/,
+        /^(hi|hello|hey|heya|yo)\s+(mira\s+)?(how are you|how are you doing|whats up|what's up)$/,
+        /^(mira\s+)?(how are you|how are you doing|whats up|what's up)$/,
+    ];
+
+    if (!greetingPatterns.some((pattern) => pattern.test(normalized))) {
+        return null;
+    }
+
+    if (normalized.includes("how are you") || normalized.includes("whats up") || normalized.includes("what's up")) {
+        return "I'm doing well, thanks for asking. How are you?";
+    }
+
+    return "Hi, I'm here.";
+}
+
 export default function MiraShell({ mode = "global" }: Props) {
     const supabase = createClient();
-    const { activeWorkspace } = useAppWorkspace();
+    const { activeWorkspace, workspaces } = useAppWorkspace();
     const params = useParams<{ workspaceId?: string }>();
     const sendingRef = useRef(false);
 
     const routeWorkspaceId =
         typeof params?.workspaceId === "string" ? params.workspaceId : null;
-
-    const effectiveWorkspaceId =
-        activeWorkspace?.workspace_id || routeWorkspaceId;
-    const workspaceLabel = activeWorkspace?.workspace_name || "Workspace";
 
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
@@ -60,6 +87,7 @@ export default function MiraShell({ mode = "global" }: Props) {
     const [loadingModels, setLoadingModels] = useState(false);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [thinkingQuestion, setThinkingQuestion] = useState<string | null>(null);
 
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedThreadIds, setSelectedThreadIds] = useState<string[]>([]);
@@ -75,6 +103,49 @@ export default function MiraShell({ mode = "global" }: Props) {
         () => threads.find((thread) => thread.id === activeThreadId) || null,
         [threads, activeThreadId]
     );
+
+    const activeModelName = useMemo(
+        () => models.find((model) => model.id === activeModelId)?.name ?? null,
+        [activeModelId, models]
+    );
+
+    const activeModel = useMemo(
+        () => models.find((model) => model.id === activeModelId) || null,
+        [activeModelId, models]
+    );
+
+    const launchpadWorkspace = useMemo(
+        () =>
+            workspaces.find(
+                (workspace) =>
+                    workspace.workspace_type === "launchpad" ||
+                    workspace.workspace_name?.toLowerCase() === "launchpad"
+            ) || null,
+        [workspaces]
+    );
+
+    const selectedModelWorkspaceId = activeModel?.workspace_id || null;
+
+    const modelListScopeKey =
+        mode === "global"
+            ? "global"
+            : mode === "launchpad"
+                ? launchpadWorkspace?.workspace_id || activeWorkspace.workspace_id
+                : routeWorkspaceId || activeWorkspace.workspace_id;
+
+    const scopedWorkspaceId =
+        mode === "workspace"
+            ? routeWorkspaceId || activeWorkspace.workspace_id
+            : mode === "launchpad"
+                ? launchpadWorkspace?.workspace_id || activeWorkspace.workspace_id
+                : selectedModelWorkspaceId;
+
+    const workspaceLabel =
+        mode === "global"
+            ? "All workspaces"
+            : mode === "launchpad"
+                ? launchpadWorkspace?.workspace_name || activeWorkspace.workspace_name
+                : activeWorkspace.workspace_name;
 
     useEffect(() => {
         async function loadUser() {
@@ -99,10 +170,10 @@ export default function MiraShell({ mode = "global" }: Props) {
         setSelectionMode(false);
         setModels([]);
         setError(null);
-    }, [effectiveWorkspaceId]);
+    }, [mode, scopedWorkspaceId]);
 
     useEffect(() => {
-        if (!effectiveWorkspaceId) {
+        if (!modelListScopeKey && mode !== "global") {
             setModels([]);
             setActiveModelId(null);
             return;
@@ -115,15 +186,24 @@ export default function MiraShell({ mode = "global" }: Props) {
             setError(null);
 
             try {
-                const workspaceModels = await getWorkspaceModels(
-                    effectiveWorkspaceId as string
-                );
+                const workspaceModels =
+                    mode === "global"
+                        ? (await getAccessibleModels()).filter((model) => {
+                            const workspace = workspaces.find(
+                                (item) => item.workspace_id === model.workspace_id
+                            );
+                            const workspaceName = workspace?.workspace_name?.toLowerCase() || "";
+                            const workspaceType = workspace?.workspace_type?.toLowerCase() || "";
+
+                            return workspaceName !== "launchpad" && workspaceType !== "launchpad";
+                        })
+                        : await getWorkspaceModels(modelListScopeKey as string);
                 if (cancelled) return;
 
                 setModels(workspaceModels);
 
                 const savedModelId = localStorage.getItem(
-                    `mira_active_model_${effectiveWorkspaceId}`
+                    `mira_active_model_${mode}_${modelListScopeKey || "global"}`
                 );
 
                 if (
@@ -166,10 +246,11 @@ export default function MiraShell({ mode = "global" }: Props) {
         return () => {
             cancelled = true;
         };
-    }, [effectiveWorkspaceId]);
+    }, [mode, modelListScopeKey, workspaces]);
 
     useEffect(() => {
-        if (!effectiveWorkspaceId || !userId) return;
+        if (!userId) return;
+        if (mode !== "global" && !scopedWorkspaceId) return;
 
         let cancelled = false;
 
@@ -177,10 +258,18 @@ export default function MiraShell({ mode = "global" }: Props) {
             setLoadingThreads(true);
 
             try {
-                const data = await getMiraThreads({
-                    workspaceId: effectiveWorkspaceId as string,
-                    userId: userId as string,
-                });
+                let data: MiraThread[];
+
+                if (mode === "global") {
+                    data = await getGlobalMiraThreads({
+                        userId: userId as string,
+                    });
+                } else {
+                    data = await getMiraThreads({
+                        workspaceId: scopedWorkspaceId as string,
+                        userId: userId as string,
+                    });
+                }
 
                 if (cancelled) return;
 
@@ -206,7 +295,7 @@ export default function MiraShell({ mode = "global" }: Props) {
         return () => {
             cancelled = true;
         };
-    }, [effectiveWorkspaceId, userId]);
+    }, [mode, scopedWorkspaceId, userId]);
 
     useEffect(() => {
         if (!activeThreadId) {
@@ -247,14 +336,21 @@ export default function MiraShell({ mode = "global" }: Props) {
     }, [activeThreadId]);
 
     async function handleNewThread() {
-        if (!effectiveWorkspaceId || !activeModelId || !userId) {
+        if (mode === "global") {
+            setActiveThreadId(null);
+            setMessages([]);
+            setError(null);
+            return;
+        }
+
+        if (!scopedWorkspaceId || !activeModelId || !userId) {
             setError("Workspace, user, or semantic model missing.");
             return;
         }
 
         try {
             const thread = await createMiraThread({
-                workspace_id: effectiveWorkspaceId as string,
+                workspace_id: scopedWorkspaceId as string,
                 model_id: activeModelId,
                 user_id: userId,
                 title: "New Chat",
@@ -389,9 +485,42 @@ export default function MiraShell({ mode = "global" }: Props) {
     if (sendingRef.current) return;
     sendingRef.current = true;
 
-    if (!effectiveWorkspaceId || !activeModelId || !userId) {
+    const greetingResponse = getGreetingResponse(question);
+
+    if (greetingResponse) {
+        const now = new Date().toISOString();
+
+        setMessages((current) => [
+            ...current,
+            {
+                id: crypto.randomUUID(),
+                role: "user",
+                content: displayText || question,
+                created_at: now,
+            },
+            {
+                id: crypto.randomUUID(),
+                role: "assistant",
+                content: greetingResponse,
+                created_at: now,
+                metadata: {
+                    is_analytics_response: false,
+                    actions_enabled: false,
+                },
+            },
+        ]);
+        setError(null);
         sendingRef.current = false;
-        setError("Workspace, user, or semantic model missing.");
+        return;
+    }
+
+    if (!userId || !scopedWorkspaceId || !activeModelId) {
+        sendingRef.current = false;
+        setError(
+            mode === "global"
+                ? "No accessible non-Launchpad semantic model found for Global Mira."
+                : "Workspace, user, or semantic model missing."
+        );
         return;
     }
 
@@ -410,16 +539,27 @@ export default function MiraShell({ mode = "global" }: Props) {
 
     setMessages((current) => [...current, optimisticUserMessage]);
     setSending(true);
+    setThinkingQuestion(displayText || question);
     setError(null);
 
     try {
-        const response = await askMira({
-            workspace_id: effectiveWorkspaceId,
-            model_id: activeModelId,
-            user_id: userId,
-            thread_id: activeThreadId,
-            question,
-        });
+        let response;
+
+        if (mode === "global") {
+            response = await askGlobalMira({
+                user_id: userId,
+                thread_id: activeThreadId,
+                question,
+            });
+        } else {
+            response = await askMira({
+                workspace_id: scopedWorkspaceId as string,
+                model_id: activeModelId as string,
+                user_id: userId,
+                thread_id: activeThreadId,
+                question,
+            });
+        }
 
         setActiveThreadId(response.thread_id);
 
@@ -431,12 +571,34 @@ export default function MiraShell({ mode = "global" }: Props) {
                 (thread) => thread.id === response.thread_id
             );
 
-            if (!existing) return current;
+            const now = new Date().toISOString();
+
+            if (!existing) {
+                return [
+                    {
+                        id: response.thread_id,
+                        workspace_id:
+                            response.metadata?.resolved_workspace_id ||
+                            scopedWorkspaceId ||
+                            "",
+                        model_id:
+                            response.metadata?.resolved_model_id ||
+                            activeModelId ||
+                            "",
+                        title: question.slice(0, 80) || "New Chat",
+                        created_by: userId,
+                        created_at: now,
+                        updated_at: now,
+                        scope: mode === "global" ? "global" : "workspace",
+                    },
+                    ...current,
+                ];
+            }
 
             return [
                 {
                     ...existing,
-                    updated_at: new Date().toISOString(),
+                    updated_at: now,
                     title:
                         existing.title === "New Chat"
                             ? question.slice(0, 80)
@@ -450,11 +612,12 @@ export default function MiraShell({ mode = "global" }: Props) {
     } finally {
         sendingRef.current = false;
         setSending(false);
+        setThinkingQuestion(null);
     }
 }
 
     return (
-        <div className="fixed inset-0 z-40 flex bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-white">
+        <div className="fixed inset-0 z-40 flex bg-slate-50 text-slate-950 dark:bg-[#070810] dark:text-white">
             <MiraChatSidebar
                 threads={threads}
                 activeThreadId={activeThreadId}
@@ -469,52 +632,56 @@ export default function MiraShell({ mode = "global" }: Props) {
                 onToggleSelectionMode={handleToggleSelectionMode}
             />
 
-            <main className="flex min-w-0 flex-1 flex-col bg-white dark:bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.18),_transparent_32%),linear-gradient(135deg,_#020617_0%,_#0f172a_45%,_#111827_100%)]">
-                <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-6 backdrop-blur dark:border-white/10 dark:bg-transparent">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-indigo-500 dark:text-indigo-300" />
-
-                            <h1 className="text-sm font-semibold tracking-wide text-slate-950 dark:text-white">
-                                {modeLabel}
-                            </h1>
+            <main className="flex min-w-0 flex-1 flex-col bg-slate-50 dark:bg-[#070810]">
+                <header className="flex h-16 items-center justify-between border-b border-slate-200/80 bg-slate-50/90 px-4 backdrop-blur-xl dark:border-white/10 dark:bg-[#070810]/90 sm:px-6">
+                    <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950">
+                            <Sparkles className="h-4 w-4" />
                         </div>
 
-                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                            Semantic-first governed analytics
-                        </p>
+                        <div className="min-w-0">
+                            <h1 className="truncate text-sm font-semibold tracking-normal text-slate-950 dark:text-white">
+                                {modeLabel}
+                            </h1>
+
+                            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                                Semantic-first governed analytics
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <select
-                            value={activeModelId || ""}
-                            onChange={(e) => {
-                                const value = e.target.value || null;
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                        {mode !== "global" ? (
+                            <select
+                                value={activeModelId || ""}
+                                onChange={(e) => {
+                                    const value = e.target.value || null;
 
-                                setActiveModelId(value);
+                                    setActiveModelId(value);
 
-                                if (value) {
-                                    localStorage.setItem(
-                                        `mira_active_model_${effectiveWorkspaceId}`,
-                                        value
-                                    );
-                                }
-                            }}
-                            disabled={loadingModels || models.length === 0}
-                            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
-                        >
-                            {models.length === 0 ? (
-                                <option value="">No models in workspace</option>
-                            ) : (
-                                models.map((model) => (
-                                    <option key={model.id} value={model.id}>
-                                        {model.name}
-                                    </option>
-                                ))
-                            )}
-                        </select>
+                                    if (value) {
+                                        localStorage.setItem(
+                                            `mira_active_model_${mode}_${modelListScopeKey || "global"}`,
+                                            value
+                                        );
+                                    }
+                                }}
+                                disabled={loadingModels || models.length === 0}
+                                className="max-w-[180px] rounded-full border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none transition disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-200 sm:max-w-xs"
+                            >
+                                {models.length === 0 ? (
+                                    <option value="">No models in workspace</option>
+                                ) : (
+                                    models.map((model) => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
+                                    ))
+                                )}
+                            </select>
+                        ) : null}
 
-                        <div className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                        <div className="hidden rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-300 md:block">
                             {workspaceLabel}
                         </div>
 
@@ -528,9 +695,12 @@ export default function MiraShell({ mode = "global" }: Props) {
                     loading={loadingMessages}
                     sending={sending}
                     error={error}
-                    workspaceId={effectiveWorkspaceId || undefined}
+                    workspaceId={scopedWorkspaceId || undefined}
                     userId={userId || undefined}
                     threadId={activeThreadId || undefined}
+                    workspaceLabel={workspaceLabel}
+                    modelName={activeModelName}
+                    thinkingQuestion={thinkingQuestion}
                     onSend={handleSend}
                 />
             </main>

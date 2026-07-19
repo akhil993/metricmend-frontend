@@ -15,21 +15,14 @@ import {
 import {
     AssignableCompanyMemberRole,
     CompanyMember,
-    CompanyMemberRole,
     inviteCompanyMemberByEmail,
     listCompanyMembers,
     removeCompanyMember,
     updateCompanyMemberRole,
 } from "@/lib/api/company-members";
+import { getMyBilling } from "@/lib/api/billing";
 
 import { createClient } from "@/lib/supabase/client";
-
-type BillingResponse = {
-    company_id?: string;
-    company?: {
-        id?: string;
-    };
-};
 
 const ROLE_OPTIONS: AssignableCompanyMemberRole[] = [
     "viewer",
@@ -81,21 +74,10 @@ export default function TeamManagementPage() {
 
             setCurrentUserId(user.id);
 
-            const billingResponse = await fetch(
-                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/billing/me`,
-                {
-                    headers: {
-                        "user-id": user.id,
-                    },
-                }
-            );
-
-            const billingData =
-                (await billingResponse.json()) as BillingResponse;
+            const billingData = await getMyBilling();
 
             const resolvedCompanyId =
-                billingData.company?.id ??
-                billingData.company_id;
+                billingData.company?.id;
 
             if (!resolvedCompanyId) {
                 throw new Error(

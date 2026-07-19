@@ -1,5 +1,10 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+import { getApiBaseUrl } from "@/lib/api/fetch";
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
+
+const API_BASE_URL = getApiBaseUrl();
 
 export type MiraThread = {
   id: string;
@@ -9,6 +14,7 @@ export type MiraThread = {
   created_by: string;
   created_at: string;
   updated_at: string;
+  scope?: "workspace" | "global" | "launchpad";
 };
 
 export type MiraMessageRole = "user" | "assistant" | "system";
@@ -42,6 +48,12 @@ export type MiraVisualPayload = {
 export type MiraAskPayload = {
   workspace_id: string;
   model_id: string;
+  user_id: string;
+  thread_id?: string | null;
+  question: string;
+};
+
+export type GlobalMiraAskPayload = {
   user_id: string;
   thread_id?: string | null;
   question: string;
@@ -83,6 +95,10 @@ async function request<T>(
   timeoutMs = 300000,
 ): Promise<T> {
   const controller = new AbortController();
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
 
   const timeout = window.setTimeout(() => {
     controller.abort();
@@ -94,6 +110,8 @@ async function request<T>(
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+        "user-id": userId,
         ...(options?.headers || {}),
       },
     });
@@ -131,6 +149,20 @@ export async function getMiraThreads(params: {
   return data.threads;
 }
 
+export async function getGlobalMiraThreads(params: {
+  userId: string;
+}): Promise<MiraThread[]> {
+  const search = new URLSearchParams({
+    user_id: params.userId,
+  });
+
+  const data = await request<{ threads: MiraThread[] }>(
+    `/api/mira/threads/global?${search.toString()}`,
+  );
+
+  return data.threads;
+}
+
 export async function createMiraThread(payload: {
   workspace_id: string;
   model_id: string;
@@ -154,10 +186,19 @@ export async function getMiraThreadMessages(
 }
 
 export async function deleteMiraThread(threadId: string) {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
   const response = await fetch(
     `${API_BASE_URL}/api/mira/threads/${threadId}`,
     {
       method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "user-id": userId,
+      },
     },
   );
 
@@ -172,6 +213,15 @@ export async function askMira(
   payload: MiraAskPayload,
 ): Promise<MiraAskResponse> {
   return request<MiraAskResponse>("/api/mira/ask", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function askGlobalMira(
+  payload: GlobalMiraAskPayload,
+): Promise<MiraAskResponse> {
+  return request<MiraAskResponse>("/api/mira/ask/global", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -219,10 +269,17 @@ export async function exportMiraVisual(
 export async function exportMiraTable(
   payload: MiraActionPayload,
 ): Promise<void> {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
   const response = await fetch(`${API_BASE_URL}/api/mira/actions/export-table`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      "user-id": userId,
     },
     body: JSON.stringify(payload),
   });

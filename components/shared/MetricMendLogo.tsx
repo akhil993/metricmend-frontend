@@ -1,14 +1,35 @@
-export default function MetricMendLogo() {
+type MetricMendLogoProps = {
+  variant?: "default" | "inverse";
+};
+
+export default function MetricMendLogo({
+  variant = "default",
+}: MetricMendLogoProps) {
+  const isInverse = variant === "inverse";
+
   return (
     <div className="flex items-center gap-3">
-      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 shadow-[0_0_30px_rgba(15,23,42,0.14)] dark:border-white/15 dark:from-indigo-500/20 dark:via-cyan-400/10 dark:to-emerald-400/10">
-
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_35%)]" />
+      <div
+        className={`relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border shadow-[0_12px_28px_rgba(15,23,42,0.18)] ${
+          isInverse
+            ? "border-white/15 bg-white/[0.08]"
+            : "border-slate-200 bg-white dark:border-white/15 dark:bg-white/[0.06]"
+        }`}
+      >
+        <div
+          className={`absolute inset-0 ${
+            isInverse
+              ? "bg-[linear-gradient(135deg,rgba(34,211,238,0.35),rgba(16,185,129,0.18)_48%,rgba(255,255,255,0.08))]"
+              : "bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(8,145,178,0.88)_48%,rgba(16,185,129,0.78))] dark:bg-[linear-gradient(135deg,rgba(34,211,238,0.28),rgba(16,185,129,0.16)_52%,rgba(255,255,255,0.08))]"
+          }`}
+        />
+        <div className="absolute inset-px rounded-[11px] border border-white/20" />
 
         <svg
           viewBox="0 0 48 48"
-          className="relative h-7 w-7 text-white dark:text-cyan-100"
+          className="relative h-7 w-7 text-white"
           fill="none"
+          aria-hidden="true"
         >
           <path
             d="M12 31L19 24L25 29L36 17"
@@ -51,15 +72,26 @@ export default function MetricMendLogo() {
       </div>
 
       <div className="leading-none">
-        <p className="text-xl font-semibold tracking-tight text-white">
+        <p
+          className={`text-xl font-semibold ${
+            isInverse
+              ? "text-white"
+              : "text-slate-950 dark:text-white"
+          }`}
+        >
           MetricMend
         </p>
 
-        <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-neutral-400">
+        <p
+          className={`mt-1 text-[10px] font-semibold uppercase ${
+            isInverse
+              ? "text-white/62"
+              : "text-slate-500 dark:text-slate-400"
+          }`}
+        >
           Intelligence
         </p>
-      
+      </div>
     </div>
-    </div >
   );
 }

@@ -1,4 +1,7 @@
-import { getCurrentUserId } from "@/lib/auth/session";
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
 
 export function getApiBaseUrl() {
   const apiBaseUrl =
@@ -13,7 +16,7 @@ export function getApiBaseUrl() {
   return apiBaseUrl;
 }
 
-function getErrorMessage(data: unknown) {
+export function getErrorMessage(data: unknown): string {
   if (!data) {
     return "Request failed";
   }
@@ -31,6 +34,10 @@ function getErrorMessage(data: unknown) {
 
     if (typeof value.detail === "string") {
       return value.detail;
+    }
+
+    if (value.detail && typeof value.detail === "object") {
+      return getErrorMessage(value.detail);
     }
 
     if (Array.isArray(value.detail)) {
@@ -57,6 +64,16 @@ function getErrorMessage(data: unknown) {
 
     if (typeof value.error === "string") {
       return value.error;
+    }
+
+    if (value.error && typeof value.error === "object") {
+      return getErrorMessage(value.error);
+    }
+
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "Request failed";
     }
   }
 
@@ -99,12 +116,16 @@ export async function fetchJsonWithAuth<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
-  const userId = await getCurrentUserId();
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
 
   return fetchJson<T>(path, {
     ...options,
     headers: {
       ...(options?.headers || {}),
+      Authorization: `Bearer ${accessToken}`,
       "user-id": userId,
     },
   });

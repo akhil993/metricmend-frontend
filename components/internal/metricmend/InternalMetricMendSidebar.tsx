@@ -8,6 +8,7 @@ import {
   Building2,
   CreditCard,
   FileSearch,
+  KeyRound,
   LayoutDashboard,
   Settings,
   Shield,
@@ -23,6 +24,11 @@ const NAV_ITEMS = [
         label: "Overview",
         href: "/internal/metricmend",
         icon: LayoutDashboard,
+      },
+      {
+        label: "Founder View",
+        href: "/internal/metricmend/founder",
+        icon: KeyRound,
       },
       {
         label: "Companies",

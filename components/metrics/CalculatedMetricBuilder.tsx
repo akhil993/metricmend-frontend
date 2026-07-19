@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Plus, Save, X } from "lucide-react";
-import { createMetric, MetricType } from "@/lib/api/metrics";
+import { createMetric, UserCreatableMetricType } from "@/lib/api/metrics";
 
 type FormulaToken =
   | {
@@ -226,7 +226,7 @@ export default function CalculatedMetricBuilder({
       display_name: displayName || metricName,
       description,
 
-      metric_type: "calculated" as MetricType,
+      metric_type: "calculated" as UserCreatableMetricType,
       aggregation_type: null,
 
       source_table_id: null,

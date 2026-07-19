@@ -31,9 +31,9 @@ import {
 import {
     createMetric,
     updateMetric,
-    type MetricType,
     type MetricValidateResponse,
     type SemanticMetric,
+    type UserCreatableMetricType,
     validateMetricFormula,
 } from "@/lib/api/metrics";
 
@@ -53,6 +53,7 @@ type MetricFormulaBuilderProps = {
     modelTables: ModelTable[];
     modelColumns: ModelColumn[];
     metrics: SemanticMetric[];
+    metricCreationEnabled?: boolean;
     editingMetric?: SemanticMetric | null;
     onMetricCreated: (metric: SemanticMetric) => void;
 };
@@ -63,6 +64,7 @@ export default function MetricFormulaBuilder({
     modelTables,
     modelColumns,
     metrics,
+    metricCreationEnabled = true,
     editingMetric,
     onMetricCreated,
 }: MetricFormulaBuilderProps) {
@@ -72,7 +74,8 @@ export default function MetricFormulaBuilder({
     const [displayName, setDisplayName] = useState("");
     const [description, setDescription] = useState("");
     const [formatType, setFormatType] = useState("number");
-    const [metricType, setMetricType] = useState<MetricType>("base");
+    const [metricType, setMetricType] =
+        useState<UserCreatableMetricType>("base");
     const [formula, setFormula] = useState("SUM()");
     const [validation, setValidation] =
         useState<MetricValidateResponse | null>(null);
@@ -87,7 +90,9 @@ export default function MetricFormulaBuilder({
         setName(editingMetric.name || "");
         setDisplayName(editingMetric.display_name || "");
         setDescription(editingMetric.description || "");
-        setMetricType(editingMetric.metric_type);
+        setMetricType(
+            editingMetric.metric_type === "calculated" ? "calculated" : "base"
+        );
         setFormatType(editingMetric.format_type || "number");
         setFormula(editingMetric.user_formula || editingMetric.expression || "SUM()");
         setValidation(null);
@@ -115,7 +120,10 @@ export default function MetricFormulaBuilder({
 
 
 
+    const isCreationBlocked = !editingMetric && !metricCreationEnabled;
+
     const canSave =
+        !isCreationBlocked &&
         name.trim().length > 0 &&
         formula.trim().length > 0 &&
         validation?.valid &&
@@ -303,6 +311,13 @@ export default function MetricFormulaBuilder({
     async function handleSaveDraft() {
         setMessage(null);
 
+        if (isCreationBlocked) {
+            setMessage(
+                "Metric creation is disabled for this model. Enable it from Model Security before adding new metrics."
+            );
+            return;
+        }
+
         if (!name.trim()) {
             setMessage("Metric name is required.");
             return;
@@ -409,6 +424,12 @@ export default function MetricFormulaBuilder({
                     </p>
                 </div>
 
+                {isCreationBlocked ? (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/25 dark:bg-amber-500/10 dark:text-amber-200">
+                        Metric creation is turned off in Model Security for this model. Existing metrics can still be reviewed from the catalog.
+                    </div>
+                ) : null}
+
                 <div className="grid gap-3 md:grid-cols-2">
                     <label className="space-y-1.5">
                         <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -441,14 +462,15 @@ export default function MetricFormulaBuilder({
                         <select
                             value={metricType}
                             onChange={(event) => {
-                                setMetricType(event.target.value as MetricType);
+                                setMetricType(
+                                    event.target.value as UserCreatableMetricType
+                                );
                                 setValidation(null);
                             }}
                             className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none transition focus:border-cyan-500 dark:border-white/10 dark:bg-slate-950/60 dark:text-white"
                         >
                             <option value="base">Base</option>
                             <option value="calculated">Calculated</option>
-                            <option value="mira_generated">Mira Generated</option>
                         </select>
                     </label>
 

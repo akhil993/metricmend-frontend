@@ -12,6 +12,7 @@ import {
   CreditCard,
   Gauge,
   HeartPulse,
+  KeyRound,
   LayoutDashboard,
   LogOut,
   Monitor,
@@ -32,6 +33,7 @@ type ThemeValue = "light" | "dark" | "system";
 
 const navItems = [
   { label: "Overview", href: "/internal/metricmend", icon: LayoutDashboard },
+  { label: "Founder", href: "/internal/metricmend/founder", icon: KeyRound },
   { label: "Companies", href: "/internal/metricmend/companies", icon: Building2 },
   { label: "Users", href: "/internal/metricmend/users", icon: Users },
   { label: "Usage", href: "/internal/metricmend/usage", icon: Gauge },

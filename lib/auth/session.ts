@@ -14,3 +14,18 @@ export async function getCurrentUserId() {
 
   return user.id;
 }
+
+export async function getCurrentAccessToken() {
+  const supabase = createClient();
+
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
+
+  if (error || !session?.access_token) {
+    throw new Error("Authenticated session not found.");
+  }
+
+  return session.access_token;
+}

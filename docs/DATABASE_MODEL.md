@@ -743,7 +743,7 @@ Because a user may belong to multiple workspaces.
 
 Example:
 
-Akhil
+User
   ├── MetricMend Demo Workspace
   ├── Client A Workspace
   └── Client B Workspace

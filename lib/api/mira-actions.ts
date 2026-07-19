@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000";
+import { getApiBaseUrl } from "@/lib/api/fetch";
+
+const API_BASE_URL = getApiBaseUrl();
 
 export type MiraThread = {
   id: string;
@@ -9,6 +10,7 @@ export type MiraThread = {
   created_by: string;
   created_at: string;
   updated_at: string;
+  scope?: "workspace" | "global" | "launchpad";
 };
 
 export type MiraMessageRole = "user" | "assistant" | "system";

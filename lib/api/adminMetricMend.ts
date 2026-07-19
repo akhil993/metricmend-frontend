@@ -1,4 +1,20 @@
 import type { InternalAuditLog } from "@/components/internal/metricmend/audit/types";
+import {
+  getCurrentAccessToken,
+  getCurrentUserId,
+} from "@/lib/auth/session";
+
+async function getInternalAuthHeaders(userId?: string) {
+  const [accessToken, currentUserId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
+  return {
+    Authorization: `Bearer ${accessToken}`,
+    "user-id": userId || currentUserId,
+  };
+}
 
 export type InternalCompanyAdmin = {
   id: string;
@@ -28,12 +44,12 @@ export type InternalCompany = {
 export async function getInternalAuditLogs(
   userId: string
 ): Promise<InternalAuditLog[]> {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/metricmend/audit-logs`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -58,14 +74,14 @@ export async function searchInternalUsers({
   authUserId: string;
   search: string;
 }): Promise<InternalUserSearchResult[]> {
+  const authHeaders = await getInternalAuthHeaders(authUserId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/users/search?q=${encodeURIComponent(
       search
     )}`,
     {
-      headers: {
-        "user-id": authUserId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -89,10 +105,10 @@ export async function getMetricMendAdminMe(userId: string) {
   }
 
   try {
+    const authHeaders = await getInternalAuthHeaders(userId);
+
     const response = await fetch(`${baseUrl}/api/admin/metricmend/me`, {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     });
 
     if (response.status === 403) {
@@ -110,12 +126,12 @@ export async function getMetricMendAdminMe(userId: string) {
 }
 
 export async function getInternalCompanies(userId: string) {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/companies`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -142,13 +158,15 @@ export async function assignCompanyAdmin({
   userId: string;
   role: "owner" | "admin";
 }) {
+  const authHeaders = await getInternalAuthHeaders(authUserId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/companies/${companyId}/admins`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "user-id": authUserId,
+        ...authHeaders,
       },
       body: JSON.stringify({
         user_id: userId,
@@ -173,13 +191,13 @@ export async function removeCompanyAdmin({
   companyId: string;
   adminUserId: string;
 }) {
+  const authHeaders = await getInternalAuthHeaders(authUserId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/companies/${companyId}/admins/${adminUserId}`,
     {
       method: "DELETE",
-      headers: {
-        "user-id": authUserId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -213,10 +231,10 @@ export async function getMetricMendOverview(
   }
 
   try {
+    const authHeaders = await getInternalAuthHeaders(userId);
+
     const response = await fetch(`${baseUrl}/api/admin/metricmend/overview`, {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     });
 
     if (response.status === 403) {
@@ -260,12 +278,12 @@ export type InternalUser = {
 export async function getInternalUsers(
   userId: string
 ): Promise<InternalUser[]> {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/users`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -294,12 +312,12 @@ export type InternalUsageItem = {
 export async function getInternalUsage(
   userId: string
 ): Promise<InternalUsageItem[]> {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/usage`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -330,12 +348,12 @@ export type InternalSystemHealth = {
 export async function getInternalSystemHealth(
   userId: string
 ): Promise<InternalSystemHealth> {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/system-health`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -357,13 +375,15 @@ export async function createInternalCompany(
     slug?: string | null;
   }
 ) {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/metricmend/companies`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "user-id": userId,
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     }
@@ -430,12 +450,12 @@ export async function getInternalCompanyDetail(
   userId: string,
   companyId: string
 ): Promise<InternalCompanyDetail> {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/metricmend/companies/${companyId}`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
     }
   );
 
@@ -490,12 +510,12 @@ export type UpdateCompanyPlanPayload = {
 export async function getInternalCompanyPlans(
   userId: string
 ): Promise<InternalCompanyPlan[]> {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/company-plans`,
     {
-      headers: {
-        "user-id": userId,
-      },
+      headers: authHeaders,
       cache: "no-store",
     }
   );
@@ -522,13 +542,15 @@ export async function updateInternalCompanyPlan({
   companyId: string;
   payload: UpdateCompanyPlanPayload;
 }) {
+  const authHeaders = await getInternalAuthHeaders(userId);
+
   const response = await fetch(
     `${apiBaseUrl()}/api/admin/metricmend/company-plans/${companyId}`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "user-id": userId,
+        ...authHeaders,
       },
       body: JSON.stringify(payload),
     }

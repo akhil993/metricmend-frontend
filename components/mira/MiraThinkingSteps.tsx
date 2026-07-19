@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
     Brain,
+    CheckCircle2,
     Database,
     LineChart,
     Search,
@@ -74,6 +75,9 @@ type NormalizedStep = {
 
 type Props = {
     progressEvents?: ProgressEventItem[];
+    question?: string;
+    workspaceLabel?: string;
+    modelName?: string | null;
 };
 
 function humanizeEvent(event: string) {
@@ -106,7 +110,12 @@ function normalizeProgressEvent(item: ProgressEventItem): NormalizedStep | null 
     };
 }
 
-export default function MiraThinkingSteps({ progressEvents }: Props) {
+export default function MiraThinkingSteps({
+    progressEvents,
+    question,
+    workspaceLabel,
+    modelName,
+}: Props) {
     const steps = useMemo(() => {
         return (progressEvents || [])
             .map(normalizeProgressEvent)
@@ -132,8 +141,14 @@ export default function MiraThinkingSteps({ progressEvents }: Props) {
     const ActiveIcon = activeStep?.icon || Sparkles;
     const visibleSteps = displaySteps.slice(0, activeIndex + 1);
 
+    const contextItems = [
+        workspaceLabel ? `Workspace: ${workspaceLabel}` : null,
+        modelName ? `Model: ${modelName}` : null,
+        question ? `Request: ${question}` : null,
+    ].filter(Boolean);
+
     return (
-        <div className="max-w-2xl rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.055]">
+        <div className="w-full max-w-4xl rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.055]">
             <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-200">
                     <ActiveIcon className="h-4 w-4" />
@@ -152,6 +167,19 @@ export default function MiraThinkingSteps({ progressEvents }: Props) {
                     <div className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         {activeStep?.label || "Preparing analysis"}
                     </div>
+
+                    {contextItems.length ? (
+                        <div className="mt-3 grid gap-2 md:grid-cols-3">
+                            {contextItems.map((item) => (
+                                <div
+                                    key={item}
+                                    className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300"
+                                >
+                                    <span className="block truncate">{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
 
                     {displaySteps.length > 1 ? (
                         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -173,6 +201,22 @@ export default function MiraThinkingSteps({ progressEvents }: Props) {
                             })}
                         </div>
                     ) : null}
+
+                    <div className="mt-4 grid gap-2 border-t border-slate-200 pt-3 dark:border-white/10 md:grid-cols-3">
+                        {[
+                            "Checking governed model context",
+                            "Resolving safe metrics and filters",
+                            "Preparing a trustworthy answer",
+                        ].map((item) => (
+                            <div
+                                key={item}
+                                className="flex items-start gap-2 text-xs leading-5 text-slate-500 dark:text-slate-400"
+                            >
+                                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                                <span>{item}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

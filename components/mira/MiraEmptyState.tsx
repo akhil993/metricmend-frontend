@@ -3,6 +3,7 @@
 import {
   BarChart3,
   LineChart,
+  Search,
   Sparkles,
 } from "lucide-react";
 
@@ -14,44 +15,38 @@ const prompts = [
   {
     icon: BarChart3,
     label: "Revenue snapshot",
-    prompt:
-      "Show me a revenue snapshot for the latest available period.",
+    prompt: "Show me a revenue snapshot for the latest available period.",
   },
   {
     icon: LineChart,
     label: "Trend analysis",
-    prompt:
-      "Analyze revenue trends over the last 3 months.",
+    prompt: "Analyze revenue trends over the last 3 months.",
   },
   {
-    icon: Sparkles,
+    icon: Search,
     label: "Find drivers",
-    prompt:
-      "What are the top drivers behind recent performance changes?",
+    prompt: "What are the top drivers behind recent performance changes?",
   },
 ];
 
-export default function MiraEmptyState({
-  onPrompt,
-}: Props) {
+export default function MiraEmptyState({ onPrompt }: Props) {
   return (
-    <div className="flex flex-1 items-center justify-center px-6">
-      <div className="w-full max-w-4xl text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-3xl border border-slate-200 bg-slate-100 text-indigo-600 shadow-sm dark:border-white/10 dark:bg-indigo-500/15 dark:text-indigo-200">
-          <Sparkles className="h-7 w-7" />
+    <div className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
+      <div className="w-full max-w-3xl text-center">
+        <div className="mx-auto mb-7 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-sm dark:border-white/10 dark:bg-white/[0.08] dark:text-white">
+          <Sparkles className="h-6 w-6" />
         </div>
 
-        <h2 className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
-          Ask Mira about your business
+        <h2 className="text-3xl font-semibold tracking-normal text-slate-950 dark:text-slate-50 sm:text-4xl">
+          How can Mira help?
         </h2>
 
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
-          Mira answers using governed semantic models,
-          approved metrics, mmQL definitions, and
-          workspace-aware analytics context.
+        <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-7 text-slate-600 dark:text-slate-400">
+          Ask a governed analytics question. Mira uses your selected semantic model,
+          approved metrics, and workspace context to answer with traceable analysis.
         </p>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-9 grid gap-3 md:grid-cols-3">
           {prompts.map((item) => {
             const Icon = item.icon;
 
@@ -59,16 +54,14 @@ export default function MiraEmptyState({
               <button
                 key={item.label}
                 type="button"
-                onClick={() =>
-                  onPrompt(item.prompt)
-                }
-                className="group rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:border-indigo-300 hover:bg-indigo-50/40 dark:border-white/10 dark:bg-white/[0.04] dark:hover:border-indigo-400/30 dark:hover:bg-indigo-500/10"
+                onClick={() => onPrompt(item.prompt)}
+                className="group rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.05] dark:hover:bg-white/[0.08]"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 transition group-hover:bg-indigo-500 group-hover:text-white dark:bg-indigo-500/15 dark:text-indigo-200">
-                  <Icon className="h-5 w-5" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 transition group-hover:bg-slate-950 group-hover:text-white dark:bg-white/[0.08] dark:text-slate-300 dark:group-hover:bg-slate-100 dark:group-hover:text-slate-950">
+                  <Icon className="h-4 w-4" />
                 </div>
 
-                <p className="mt-5 text-sm font-semibold text-slate-950 dark:text-white">
+                <p className="mt-4 text-sm font-semibold text-slate-950 dark:text-white">
                   {item.label}
                 </p>
 

@@ -7,10 +7,13 @@ import {
   Activity,
   CreditCard,
   FileSearch,
+  Crown,
   Settings,
   Shield,
   Users,
 } from "lucide-react";
+
+import { useMetricMendAdmin } from "@/hooks/useMetricMendAdmin";
 
 const ITEMS = [
   {
@@ -47,6 +50,18 @@ const ITEMS = [
 
 export default function SettingsSidebar() {
   const pathname = usePathname();
+  const { user } = useMetricMendAdmin();
+  const showFounder = user?.internal_role === "founder";
+  const items = showFounder
+    ? [
+        ...ITEMS,
+        {
+          label: "Founder",
+          href: "/app/settings/founder",
+          icon: Crown,
+        },
+      ]
+    : ITEMS;
 
   return (
     <aside className="w-full rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.045] lg:w-72">
@@ -57,7 +72,7 @@ export default function SettingsSidebar() {
       </div>
 
       <nav className="space-y-1">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const active =
             pathname === item.href;
 

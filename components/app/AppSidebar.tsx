@@ -8,11 +8,13 @@ import {
   Settings,
   Home,
   Building2,
+  Landmark,
 } from "lucide-react";
 import MetricMendLogo from "@/components/shared/MetricMendLogo";
 
 const navItems = [
   { label: "Home", href: "/app", icon: Home },
+  { label: "Company", href: "/app/company", icon: Landmark },
   { label: "Launchpad", href: "/app/launchpad", icon: Gauge },
   { label: "Workspaces", href: "/app/workspaces", icon: Building2 },
   { label: "Mira", href: "/app/mira", icon: Bot },
