@@ -4,6 +4,8 @@ import {
   BarChart3,
   CheckCircle2,
   Lightbulb,
+  Route,
+  ShieldCheck,
   Sparkles,
   UserRound,
 } from "lucide-react";
@@ -40,6 +42,47 @@ type Props = {
   onSendMessage?: (message: string) => void;
   sending?: boolean;
 };
+
+const processLabels: Record<string, string> = {
+  reviewing_model: "Governed model reviewed",
+  building_context: "Business context assembled",
+  planning_intent: "Intent classified",
+  resolving_time: "Reporting period resolved",
+  resolving_metric: "Metric definition matched",
+  resolving_dimensions: "Dimensions validated",
+  resolving_filters: "Filters normalized",
+  building_query: "Evidence plan prepared",
+  running_query: "Governed analysis executed",
+  running_supporting_analysis: "Supporting drivers checked",
+  generating_insights: "Business narrative synthesized",
+  preparing_actions: "Next steps prepared",
+  completed: "Answer finalized",
+};
+
+function getProcessLabel(
+  event:
+    | string
+    | {
+        event?: string;
+        label?: string;
+      },
+) {
+  const eventName = typeof event === "string" ? event : event.event || "";
+
+  if (eventName && processLabels[eventName]) {
+    return processLabels[eventName];
+  }
+
+  if (typeof event !== "string" && event.label) {
+    return event.label;
+  }
+
+  return (
+    eventName
+      ?.replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "Completed step"
+  );
+}
 
 export default function MiraMessageBubble({
   message,
@@ -362,32 +405,31 @@ export default function MiraMessageBubble({
         ) : null}
 
         {!isUser && progressEvents.length ? (
-          <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-              Analysis process
+          <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/[0.035]">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                <Route className="h-4 w-4" />
+                Governed analysis path
+              </div>
+
+              <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Verified workflow
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="grid gap-2 p-4 sm:grid-cols-2">
               {progressEvents.slice(0, 8).map((event, index) => {
-                const label =
-                  typeof event === "string"
-                    ? event
-                        .replace(/_/g, " ")
-                        .replace(/\b\w/g, (letter) => letter.toUpperCase())
-                    : event.label ||
-                      event.event
-                        ?.replace(/_/g, " ")
-                        .replace(/\b\w/g, (letter) => letter.toUpperCase()) ||
-                      "Completed step";
+                const label = getProcessLabel(event);
 
                 return (
-                  <span
+                  <div
                     key={`${label}-${index}`}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-300"
+                    className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300"
                   >
-                    {label}
-                  </span>
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                    <span className="leading-5">{label}</span>
+                  </div>
                 );
               })}
             </div>

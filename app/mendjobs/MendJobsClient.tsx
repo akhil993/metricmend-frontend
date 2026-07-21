@@ -49,6 +49,32 @@ function categoryFromJob(job: Job) {
   return job.category || "Other";
 }
 
+function getCountry(location: string | null) {
+  if (!location) return "Unknown";
+
+  const value = location.toLowerCase();
+
+  if (
+    value.includes("united states") ||
+    value.includes("usa") ||
+    value.includes("u.s.") ||
+    value.includes(", us") ||
+    value.endsWith(" us")
+  ) {
+    return "United States";
+  }
+
+  if (value.includes("india")) return "India";
+  if (value.includes("canada")) return "Canada";
+  if (value.includes("united kingdom") || value.includes("uk")) {
+    return "United Kingdom";
+  }
+  if (value.includes("australia")) return "Australia";
+  if (value.includes("germany")) return "Germany";
+
+  return "Other";
+}
+
 export default function MendJobsClient({
   jobs,
   comments,
@@ -65,6 +91,7 @@ export default function MendJobsClient({
   const [comment, setComment] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [message, setMessage] = useState("");
+  const [locationFilter, setLocationFilter] = useState("all");
 
   const companies = useMemo(() => {
     const map = new Map<string, string>();
@@ -79,10 +106,21 @@ export default function MendJobsClient({
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [jobs]);
 
+  const locations = useMemo(() => {
+    return [
+      "all",
+      ...Array.from(new Set(jobs.map((job) => getCountry(job.location)))).sort(),
+    ];
+  }, [jobs]);
+
   const categories = useMemo(() => {
     return Array.from(new Set(jobs.map(categoryFromJob)))
       .filter(Boolean)
       .sort();
+  }, [jobs]);
+
+  const sourceCount = useMemo(() => {
+    return new Set(jobs.map((job) => job.source || "unknown")).size;
   }, [jobs]);
 
   const filteredJobs = useMemo(() => {
@@ -97,10 +135,19 @@ export default function MendJobsClient({
         (visa === "all" || job.visa_signal === visa) &&
         (workMode === "all" || job.work_mode === workMode) &&
         (companyFilter === "all" || company?.id === companyFilter) &&
-        (categoryFilter === "all" || category === categoryFilter)
+        (categoryFilter === "all" || category === categoryFilter) &&
+        (locationFilter === "all" || getCountry(job.location) === locationFilter)
       );
     });
-  }, [jobs, query, visa, workMode, companyFilter, categoryFilter]);
+  }, [
+    jobs,
+    query,
+    visa,
+    workMode,
+    companyFilter,
+    categoryFilter,
+    locationFilter,
+  ]);
 
   async function postComment() {
     setMessage("");
@@ -128,40 +175,43 @@ export default function MendJobsClient({
   }
 
   return (
-    <main className="min-h-screen bg-[#f8f5ef] px-5 py-10 text-[#171411]">
-      <div className="mx-auto max-w-7xl space-y-8">
-        <section className="rounded-[2rem] border border-black/10 bg-white p-8 shadow-sm">
-          <p className="mb-4 inline-flex rounded-full bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-900">
+    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
+      <div className="mx-auto max-w-7xl space-y-5">
+        <section className="border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="mb-4 inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
             MendJobs by MetricMend
           </p>
 
-          <h1 className="max-w-4xl text-4xl font-semibold tracking-tight md:text-6xl">
-            Real jobs with sponsorship clarity.
+          <h1 className="max-w-4xl text-3xl font-semibold tracking-normal md:text-5xl">
+            Top-company open roles with sponsorship clarity.
           </h1>
 
-          <p className="mt-5 max-w-2xl text-neutral-700">
-            Search real company career postings across data, analytics, BI,
-            software, AI, and product roles.
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-600">
+            Search live company career feeds and curated stored postings across
+            software, data, analytics, AI, product, and business roles.
           </p>
 
-          <p className="mt-4 text-sm text-neutral-500">
-            Showing {filteredJobs.length} of {jobs.length} live roles.
-          </p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+            <Stat label="Showing" value={filteredJobs.length.toLocaleString()} />
+            <Stat label="Total roles" value={jobs.length.toLocaleString()} />
+            <Stat label="Companies" value={companies.length.toLocaleString()} />
+            <Stat label="Sources" value={sourceCount.toLocaleString()} />
+          </div>
         </section>
 
-        <section className="rounded-[2rem] border border-black/10 bg-white p-6 shadow-sm">
-          <div className="grid gap-3 md:grid-cols-5">
+        <section className="border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="grid gap-3 lg:grid-cols-6">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search role, company, location..."
-              className="rounded-full border border-black/10 px-5 py-3 text-sm outline-none md:col-span-2"
+              className="border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400 lg:col-span-2"
             />
 
             <select
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
-              className="rounded-full border border-black/10 px-5 py-3 text-sm outline-none"
+              className="border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
             >
               <option value="all">All companies</option>
               {companies.map((company) => (
@@ -174,7 +224,7 @@ export default function MendJobsClient({
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="rounded-full border border-black/10 px-5 py-3 text-sm outline-none"
+              className="border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
             >
               <option value="all">All categories</option>
               {categories.map((category) => (
@@ -183,11 +233,26 @@ export default function MendJobsClient({
                 </option>
               ))}
             </select>
+            <select
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              className="border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
+            >
+              <option value="all">All locations</option>
+
+              {locations
+                .filter((l) => l !== "all")
+                .map((location) => (
+                  <option key={location} value={location}>
+                    {location}
+                  </option>
+                ))}
+            </select>
 
             <select
               value={visa}
               onChange={(e) => setVisa(e.target.value)}
-              className="rounded-full border border-black/10 px-5 py-3 text-sm outline-none"
+              className="border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
             >
               <option value="all">All visa signals</option>
               <option value="sponsorship_possible">Sponsorship possible</option>
@@ -199,7 +264,7 @@ export default function MendJobsClient({
             <select
               value={workMode}
               onChange={(e) => setWorkMode(e.target.value)}
-              className="rounded-full border border-black/10 px-5 py-3 text-sm outline-none md:col-span-1"
+              className="border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-400"
             >
               <option value="all">All work modes</option>
               <option value="remote">Remote</option>
@@ -217,16 +282,16 @@ export default function MendJobsClient({
               return (
                 <article
                   key={job.id}
-                  className="rounded-3xl border border-black/10 bg-[#fbfaf7] p-5"
+                  className="border border-slate-200 bg-white p-5"
                 >
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
                       <h2 className="text-xl font-semibold">{job.title}</h2>
-                      <p className="mt-1 text-neutral-700">
+                      <p className="mt-1 text-slate-700">
                         {company?.name || "Unknown company"} ·{" "}
                         {job.location || "Location not listed"}
                       </p>
-                      <p className="mt-2 text-sm text-neutral-600">
+                      <p className="mt-2 text-sm text-slate-600">
                         {category} · {job.department || "Department not listed"} · Source:{" "}
                         {job.source}
                       </p>
@@ -236,7 +301,7 @@ export default function MendJobsClient({
                       <span className="rounded-full bg-black px-3 py-1 text-xs font-semibold text-white">
                         {visaLabel(job.visa_signal)}
                       </span>
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                         {job.work_mode}
                       </span>
                     </div>
@@ -255,25 +320,25 @@ export default function MendJobsClient({
             })}
 
             {!filteredJobs.length && (
-              <div className="rounded-3xl border border-dashed border-black/20 p-8 text-center text-neutral-600">
+              <div className="border border-dashed border-slate-300 p-8 text-center text-slate-600">
                 No matching jobs found. Try clearing filters or searching a broader role.
               </div>
             )}
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-black/10 bg-white p-6 shadow-sm">
+        <section className="border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-2xl font-semibold">Community experiences</h2>
-          <p className="mt-2 text-sm text-neutral-600">
+          <p className="mt-2 text-sm text-slate-600">
             Share sponsorship, interview, and recruiter experiences.
           </p>
 
           <div className="mt-6 grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="rounded-3xl border border-black/10 bg-[#fbfaf7] p-5">
+            <div className="border border-slate-200 bg-slate-50 p-5">
               <select
                 value={companyId}
                 onChange={(e) => setCompanyId(e.target.value)}
-                className="w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                className="w-full border border-slate-200 bg-white px-4 py-3 text-sm"
               >
                 <option value="">Select company</option>
                 {companies.map((company) => (
@@ -287,18 +352,18 @@ export default function MendJobsClient({
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Display name, optional"
-                className="mt-3 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+                className="mt-3 w-full border border-slate-200 bg-white px-4 py-3 text-sm"
               />
 
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Example: Recruiter confirmed H1B transfer support."
-                className="mt-3 min-h-32 w-full rounded-2xl border border-black/10 bg-white p-4 text-sm outline-none"
+                className="mt-3 min-h-32 w-full border border-slate-200 bg-white p-4 text-sm outline-none"
               />
 
               {message && (
-                <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-sm text-amber-900">
+                <div className="mt-3 bg-amber-50 p-4 text-sm text-amber-900">
                   {message}
                 </div>
               )}
@@ -315,22 +380,22 @@ export default function MendJobsClient({
               {comments.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-3xl border border-black/10 bg-[#fbfaf7] p-5"
+                  className="border border-slate-200 bg-slate-50 p-5"
                 >
                   <p className="text-sm font-semibold">
                     {getCompany(item.companies)?.name || "Unknown company"}
                   </p>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     {item.display_name || "Anonymous"}
                   </p>
-                  <p className="mt-3 text-sm leading-6 text-neutral-700">
+                  <p className="mt-3 text-sm leading-6 text-slate-700">
                     {item.comment}
                   </p>
                 </div>
               ))}
 
               {!comments.length && (
-                <div className="rounded-3xl border border-dashed border-black/20 p-8 text-center text-neutral-600">
+                <div className="border border-dashed border-slate-300 p-8 text-center text-slate-600">
                   No community posts yet.
                 </div>
               )}
@@ -338,8 +403,8 @@ export default function MendJobsClient({
           </div>
         </section>
 
-        <footer className="rounded-[2rem] border border-black/10 bg-white/70 p-6 text-sm leading-6 text-neutral-600">
-          <p className="font-semibold text-neutral-900">MendJobs community policy</p>
+        <footer className="border border-slate-200 bg-white p-6 text-sm leading-6 text-slate-600">
+          <p className="font-semibold text-slate-900">MendJobs community policy</p>
           <p className="mt-2">
             MendJobs is designed to be a respectful, neutral space for job seekers.
             Comments may be reviewed before posting. Content involving harassment,
@@ -353,5 +418,22 @@ export default function MendJobsClient({
         </footer>
       </div>
     </main>
+  );
+}
+
+function Stat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="border border-slate-200 bg-slate-50 px-4 py-3">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        {label}
+      </div>
+      <div className="mt-1 text-2xl font-semibold text-slate-950">{value}</div>
+    </div>
   );
 }

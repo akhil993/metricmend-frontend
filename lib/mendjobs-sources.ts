@@ -24,6 +24,7 @@ type CompanySource = {
 };
 
 export const KNOWN_COMPANY_SOURCES: CompanySource[] = [
+  { name: "Google", ats: "greenhouse", slug: "google" },
   { name: "OpenAI", ats: "greenhouse", slug: "openai" },
   { name: "Stripe", ats: "greenhouse", slug: "stripe" },
   { name: "Databricks", ats: "greenhouse", slug: "databricks" },
@@ -55,6 +56,28 @@ export const KNOWN_COMPANY_SOURCES: CompanySource[] = [
   { name: "Grammarly", ats: "greenhouse", slug: "grammarly" },
   { name: "Quora", ats: "greenhouse", slug: "quora" },
   { name: "Wayfair", ats: "greenhouse", slug: "wayfair" },
+  { name: "Airbnb", ats: "greenhouse", slug: "airbnb" },
+  { name: "Uber", ats: "greenhouse", slug: "uber" },
+  { name: "Cloudflare", ats: "greenhouse", slug: "cloudflare" },
+  { name: "Snowflake", ats: "greenhouse", slug: "snowflake" },
+  { name: "Atlassian", ats: "greenhouse", slug: "atlassian" },
+  { name: "Shopify", ats: "greenhouse", slug: "shopify" },
+  { name: "Square", ats: "greenhouse", slug: "square" },
+  { name: "GitHub", ats: "greenhouse", slug: "github" },
+  { name: "Yelp", ats: "greenhouse", slug: "yelp" },
+  { name: "Box", ats: "greenhouse", slug: "boxinc" },
+  { name: "Confluent", ats: "greenhouse", slug: "confluent" },
+  { name: "HashiCorp", ats: "greenhouse", slug: "hashicorp" },
+  { name: "Elastic", ats: "greenhouse", slug: "elastic" },
+  { name: "HubSpot", ats: "greenhouse", slug: "hubspot" },
+  { name: "Coursera", ats: "greenhouse", slug: "coursera" },
+  { name: "Duolingo", ats: "greenhouse", slug: "duolingo" },
+  { name: "Oscar Health", ats: "greenhouse", slug: "oscar" },
+  { name: "Toast", ats: "greenhouse", slug: "toast" },
+  { name: "SoFi", ats: "greenhouse", slug: "sofi" },
+  { name: "Gusto", ats: "greenhouse", slug: "gusto" },
+  { name: "Flexport", ats: "greenhouse", slug: "flexport" },
+  { name: "Circle", ats: "greenhouse", slug: "circle" },
 
   { name: "Netflix", ats: "lever", slug: "netflix" },
   { name: "NVIDIA", ats: "lever", slug: "nvidia" },
@@ -70,6 +93,15 @@ export const KNOWN_COMPANY_SOURCES: CompanySource[] = [
   { name: "Retool", ats: "lever", slug: "retool" },
   { name: "Samsara", ats: "lever", slug: "samsara" },
   { name: "Webflow", ats: "lever", slug: "webflow" },
+  { name: "Palantir", ats: "lever", slug: "palantir" },
+  { name: "Anduril", ats: "lever", slug: "anduril" },
+  { name: "Rivian", ats: "lever", slug: "rivian" },
+  { name: "Discord", ats: "lever", slug: "discord" },
+  { name: "Twitch", ats: "lever", slug: "twitch" },
+  { name: "Niantic", ats: "lever", slug: "niantic" },
+  { name: "Wealthsimple", ats: "lever", slug: "wealthsimple" },
+  { name: "Faire", ats: "lever", slug: "faire" },
+  { name: "Carta", ats: "lever", slug: "carta" },
 
   { name: "Perplexity", ats: "ashby", slug: "perplexity" },
   { name: "Harvey", ats: "ashby", slug: "harvey" },
@@ -77,6 +109,11 @@ export const KNOWN_COMPANY_SOURCES: CompanySource[] = [
   { name: "Clay", ats: "ashby", slug: "clay" },
   { name: "Cohere", ats: "ashby", slug: "cohere" },
   { name: "Linear", ats: "ashby", slug: "linear" },
+  { name: "Tailscale", ats: "ashby", slug: "tailscale" },
+  { name: "LangChain", ats: "ashby", slug: "langchain" },
+  { name: "Modal", ats: "ashby", slug: "modal" },
+  { name: "Runway", ats: "ashby", slug: "runway" },
+  { name: "Sourcegraph", ats: "ashby", slug: "sourcegraph" },
 ];
 
 export function classifyJobCategory(title: string, department?: string | null) {
@@ -145,10 +182,23 @@ function relevantJob(title: string, department?: string | null) {
   return classifyJobCategory(title, department) !== "Other";
 }
 
+async function fetchWithTimeout(url: string, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function fetchGreenhouse(company: CompanySource): Promise<MendJob[]> {
-  const res = await fetch(
-    `https://boards-api.greenhouse.io/v1/boards/${company.slug}/jobs?content=true`,
-    { next: { revalidate: 3600 } }
+  const res = await fetchWithTimeout(
+    `https://boards-api.greenhouse.io/v1/boards/${company.slug}/jobs?content=true`
   );
 
   if (!res.ok) return [];
@@ -184,9 +234,8 @@ async function fetchGreenhouse(company: CompanySource): Promise<MendJob[]> {
 }
 
 async function fetchLever(company: CompanySource): Promise<MendJob[]> {
-  const res = await fetch(
-    `https://api.lever.co/v0/postings/${company.slug}?mode=json`,
-    { next: { revalidate: 3600 } }
+  const res = await fetchWithTimeout(
+    `https://api.lever.co/v0/postings/${company.slug}?mode=json`
   );
 
   if (!res.ok) return [];
@@ -221,9 +270,8 @@ async function fetchLever(company: CompanySource): Promise<MendJob[]> {
 }
 
 async function fetchAshby(company: CompanySource): Promise<MendJob[]> {
-  const res = await fetch(
-    `https://api.ashbyhq.com/posting-api/job-board/${company.slug}`,
-    { next: { revalidate: 3600 } }
+  const res = await fetchWithTimeout(
+    `https://api.ashbyhq.com/posting-api/job-board/${company.slug}`
   );
 
   if (!res.ok) return [];
@@ -259,24 +307,39 @@ async function fetchAshby(company: CompanySource): Promise<MendJob[]> {
 }
 
 export async function fetchLiveMendJobs() {
-  const results = await Promise.allSettled(
-    KNOWN_COMPANY_SOURCES.map(async (company) => {
-      if (company.ats === "greenhouse") return fetchGreenhouse(company);
-      if (company.ats === "lever") return fetchLever(company);
-      return fetchAshby(company);
-    })
-  );
+  const batches: CompanySource[][] = [];
 
-  const jobs = results.flatMap((result) =>
+  for (let index = 0; index < KNOWN_COMPANY_SOURCES.length; index += 12) {
+    batches.push(KNOWN_COMPANY_SOURCES.slice(index, index + 12));
+  }
+
+  const settledBatches = [];
+
+  for (const batch of batches) {
+    const batchResults = await Promise.allSettled(
+      batch.map(async (company) => {
+        if (company.ats === "greenhouse") return fetchGreenhouse(company);
+        if (company.ats === "lever") return fetchLever(company);
+        return fetchAshby(company);
+      })
+    );
+
+    settledBatches.push(...batchResults);
+  }
+
+  const jobs = settledBatches.flatMap((result) =>
     result.status === "fulfilled" ? result.value : []
   );
 
   const deduped = new Map<string, MendJob>();
 
   jobs.forEach((job) => {
-    const key = `${job.companies?.name}-${job.title}-${job.location}`;
-    if (!deduped.has(key)) deduped.set(key, job);
+    const key = `${job.companies?.name}-${job.title}-${job.location}`.toLowerCase();
+
+    if (!deduped.has(key)) {
+      deduped.set(key, job);
+    }
   });
 
-  return Array.from(deduped.values()).slice(0, 500);
+  return Array.from(deduped.values()).slice(0, 1200);
 }

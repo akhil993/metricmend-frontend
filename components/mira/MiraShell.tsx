@@ -466,6 +466,37 @@ export default function MiraShell({ mode = "global" }: Props) {
 
         const message = error.message.toLowerCase();
 
+        if (
+            message.includes("not enough mira credits") ||
+            message.includes("credit hard limit") ||
+            message.includes("credits remaining")
+        ) {
+            return "Mira credits are not available for this workspace. Add credits or adjust the company limit before continuing.";
+        }
+
+        if (
+            message.includes("mira is disabled") ||
+            message.includes("allow_mira") ||
+            message.includes("not enabled for this plan")
+        ) {
+            return "Mira is not enabled for this plan or semantic model. Check billing and model security settings.";
+        }
+
+        if (
+            message.includes("do not have access") ||
+            message.includes("request user does not match") ||
+            message.includes("not authenticated")
+        ) {
+            return "Your session does not have access to this MIRA workspace or thread. Sign in again or ask an admin to review access.";
+        }
+
+        if (
+            message.includes("semantic model is not available") ||
+            message.includes("no accessible semantic models")
+        ) {
+            return "Mira needs an accessible semantic model with MIRA enabled before it can answer.";
+        }
+
         if (message.includes("failed to fetch")) {
             return "Mira couldn't reach the analytics service. Please try again.";
         }
