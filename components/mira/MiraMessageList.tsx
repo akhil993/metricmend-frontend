@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import type { MiraMessage } from "@/lib/api/mira";
+import type { MiraMessage, MiraProgressEvent } from "@/lib/api/mira";
 
 import MiraMessageBubble from "./MiraMessageBubble";
 import MiraThinkingSteps from "./MiraThinkingSteps";
@@ -14,6 +14,7 @@ type Props = {
   userId?: string;
   threadId?: string;
   thinkingQuestion?: string | null;
+  progressEvents?: MiraProgressEvent[];
   workspaceLabel?: string;
   modelName?: string | null;
   onDrilldown?: (executionPrompt: string, displayText?: string) => void;
@@ -27,6 +28,7 @@ export default function MiraMessageList({
   userId,
   threadId,
   thinkingQuestion,
+  progressEvents,
   workspaceLabel,
   modelName,
   onDrilldown,
@@ -62,6 +64,7 @@ export default function MiraMessageList({
               question={thinkingQuestion || undefined}
               workspaceLabel={workspaceLabel}
               modelName={modelName}
+              progressEvents={progressEvents}
             />
           </div>
         ) : null}

@@ -9,16 +9,20 @@ import AppAccountMenu from "@/components/app/AppAccountMenu";
 import { createClient } from "@/lib/supabase/client";
 import {
     askGlobalMira,
+    askGlobalMiraStream,
     askMira,
+    askMiraStream,
     createMiraThread,
     deleteMiraThread,
     getGlobalMiraThreads,
     getMiraThreadMessages,
     getMiraThreads,
     type MiraMessage,
+    type MiraProgressEvent,
     type MiraThread,
 } from "@/lib/api/mira";
 import { getAccessibleModels, getWorkspaceModels } from "@/lib/api/models";
+import { testSavedConnection } from "@/lib/api/connections";
 
 import MiraChatSidebar from "./MiraChatSidebar";
 import MiraChatWorkspace from "./MiraChatWorkspace";
@@ -27,6 +31,7 @@ type SemanticModel = {
     id: string;
     workspace_id: string;
     name: string;
+    connection_id?: string | null;
 };
 
 type MiraShellMode = "global" | "workspace" | "launchpad";
@@ -88,6 +93,7 @@ export default function MiraShell({ mode = "global" }: Props) {
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [thinkingQuestion, setThinkingQuestion] = useState<string | null>(null);
+    const [progressEvents, setProgressEvents] = useState<MiraProgressEvent[]>([]);
 
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedThreadIds, setSelectedThreadIds] = useState<string[]>([]);
@@ -97,7 +103,7 @@ export default function MiraShell({ mode = "global" }: Props) {
             ? "Launchpad Mira"
             : mode === "workspace"
                 ? "Workspace Mira"
-                : "Global Mira";
+                : "Mira";
 
     const activeThread = useMemo(
         () => threads.find((thread) => thread.id === activeThreadId) || null,
@@ -113,6 +119,38 @@ export default function MiraShell({ mode = "global" }: Props) {
         () => models.find((model) => model.id === activeModelId) || null,
         [activeModelId, models]
     );
+
+    const [connectionHealthy, setConnectionHealthy] = useState<boolean | null>(null);
+    const [connectionCheckMessage, setConnectionCheckMessage] = useState<string | null>(null);
+    const [connectionBannerDismissed, setConnectionBannerDismissed] = useState(false);
+
+    const checkActiveConnection = useMemo(
+        () => async (connectionId: string) => {
+            try {
+                const result = await testSavedConnection(connectionId);
+                setConnectionHealthy(result.success);
+                setConnectionCheckMessage(result.success ? null : result.message);
+            } catch (err) {
+                setConnectionHealthy(false);
+                setConnectionCheckMessage(
+                    err instanceof Error ? err.message : "Unable to verify the data connection."
+                );
+            }
+        },
+        []
+    );
+
+    useEffect(() => {
+        setConnectionHealthy(null);
+        setConnectionCheckMessage(null);
+        setConnectionBannerDismissed(false);
+
+        if (!activeModel?.connection_id) {
+            return;
+        }
+
+        checkActiveConnection(activeModel.connection_id);
+    }, [activeModel?.connection_id, checkActiveConnection]);
 
     const launchpadWorkspace = useMemo(
         () =>
@@ -549,7 +587,7 @@ export default function MiraShell({ mode = "global" }: Props) {
         sendingRef.current = false;
         setError(
             mode === "global"
-                ? "No accessible non-Launchpad semantic model found for Global Mira."
+                ? "No accessible non-Launchpad semantic model found for Mira."
                 : "Workspace, user, or semantic model missing."
         );
         return;
@@ -571,25 +609,57 @@ export default function MiraShell({ mode = "global" }: Props) {
     setMessages((current) => [...current, optimisticUserMessage]);
     setSending(true);
     setThinkingQuestion(displayText || question);
+    setProgressEvents([]);
     setError(null);
+
+    const onProgress = (event: MiraProgressEvent) => {
+        setProgressEvents((current) => [
+            ...current,
+            { ...event, receivedAt: performance.now() },
+        ]);
+    };
 
     try {
         let response;
 
         if (mode === "global") {
-            response = await askGlobalMira({
-                user_id: userId,
-                thread_id: activeThreadId,
-                question,
-            });
+            try {
+                response = await askGlobalMiraStream(
+                    {
+                        user_id: userId,
+                        thread_id: activeThreadId,
+                        question,
+                    },
+                    { onProgress },
+                );
+            } catch {
+                response = await askGlobalMira({
+                    user_id: userId,
+                    thread_id: activeThreadId,
+                    question,
+                });
+            }
         } else {
-            response = await askMira({
-                workspace_id: scopedWorkspaceId as string,
-                model_id: activeModelId as string,
-                user_id: userId,
-                thread_id: activeThreadId,
-                question,
-            });
+            try {
+                response = await askMiraStream(
+                    {
+                        workspace_id: scopedWorkspaceId as string,
+                        model_id: activeModelId as string,
+                        user_id: userId,
+                        thread_id: activeThreadId,
+                        question,
+                    },
+                    { onProgress },
+                );
+            } catch {
+                response = await askMira({
+                    workspace_id: scopedWorkspaceId as string,
+                    model_id: activeModelId as string,
+                    user_id: userId,
+                    thread_id: activeThreadId,
+                    question,
+                });
+            }
         }
 
         setActiveThreadId(response.thread_id);
@@ -644,6 +714,7 @@ export default function MiraShell({ mode = "global" }: Props) {
         sendingRef.current = false;
         setSending(false);
         setThinkingQuestion(null);
+        setProgressEvents([]);
     }
 }
 
@@ -732,7 +803,20 @@ export default function MiraShell({ mode = "global" }: Props) {
                     workspaceLabel={workspaceLabel}
                     modelName={activeModelName}
                     thinkingQuestion={thinkingQuestion}
+                    progressEvents={progressEvents}
                     onSend={handleSend}
+                    connectionIssue={
+                        connectionHealthy === false && !connectionBannerDismissed
+                            ? connectionCheckMessage ||
+                              "This workspace's data warehouse connection needs to be reconnected."
+                            : null
+                    }
+                    onDismissConnectionIssue={() => setConnectionBannerDismissed(true)}
+                    onRetryConnectionCheck={() => {
+                        if (activeModel?.connection_id) {
+                            checkActiveConnection(activeModel.connection_id);
+                        }
+                    }}
                 />
             </main>
         </div>

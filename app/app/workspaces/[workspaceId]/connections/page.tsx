@@ -1,16 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import ConnectionShell from "@/components/connections/ConnectionShell";
+import { useAppWorkspace } from "@/components/app/AppWorkspaceContext";
 
 export default function WorkspaceConnectionsPage() {
-  const params = useParams();
-  const workspaceId = String(params.workspaceId);
+  const { activeWorkspace } = useAppWorkspace();
 
   return (
     <ConnectionShell
-      workspaceId={workspaceId}
-      workspaceName="Workspace"
+      workspaceId={activeWorkspace.workspace_id}
+      workspaceName={activeWorkspace.workspace_name}
     />
   );
 }

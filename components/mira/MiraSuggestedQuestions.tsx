@@ -22,10 +22,11 @@ export default function MiraSuggestedQuestions({
           key={question}
           type="button"
           disabled={disabled}
+          title={question}
           onClick={() => onSelect(question)}
           className="
-            group inline-flex items-center rounded-full
-            border border-slate-200 bg-white px-4 py-2
+            group inline-flex max-w-full items-center rounded-full
+            border border-slate-200 bg-white px-4 py-2 sm:max-w-xs
             text-sm font-medium text-slate-700
             shadow-sm transition-all duration-200
             hover:-translate-y-0.5 hover:border-slate-300
@@ -36,11 +37,11 @@ export default function MiraSuggestedQuestions({
             dark:hover:bg-white/[0.08]
           "
         >
-          <span className="mr-2 text-slate-400 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
+          <span className="mr-2 shrink-0 text-slate-400 transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300">
             →
           </span>
 
-          {question}
+          <span className="truncate">{question}</span>
         </button>
       ))}
     </div>

@@ -683,6 +683,30 @@ export async function updateModelLayout(
   return response.json();
 }
 
+export async function resetModelLayout(modelId: string) {
+  const authHeaders = await getAuthHeaders();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/models/${modelId}/layout`,
+    {
+      method: "DELETE",
+      headers: {
+        ...authHeaders,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+
+    throw new Error(
+      apiErrorMessage(error, "Failed to reset model layout.")
+    );
+  }
+
+  return response.json();
+}
+
 export type AutoDetectedRelationship = {
   from_table_id?: string;
   from_table_name: string;

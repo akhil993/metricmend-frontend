@@ -183,7 +183,7 @@ export default function WorkspacesPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-neutral-400">
             Add another workspace when your plan allows it. Choose the workspace
-            environment so Global Mira can safely separate development, test,
+            environment so Mira can safely separate development, test,
             and production analytics.
           </p>
 
@@ -235,7 +235,7 @@ export default function WorkspacesPage() {
                 </select>
 
                 <p className="mt-2 text-xs text-slate-500 dark:text-neutral-500">
-                  Required for safe Global Mira routing.
+                  Required for safe Mira routing.
                 </p>
               </div>
 

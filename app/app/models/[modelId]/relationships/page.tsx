@@ -22,11 +22,50 @@ import {
   updateRelationship,
   getModelDetail,
   updateModelLayout,
+  resetModelLayout,
   type SemanticModelColumn,
   type SemanticModelDetail,
 } from "@/lib/api/models";
 
 type ActivePanel = "none" | "manual" | "manage";
+
+const NODE_WIDTH = 280;
+const HEADER_HEIGHT = 64;
+const ROW_HEIGHT = 30;
+const MAX_LIST_HEIGHT = 280;
+const BODY_PADDING = 16;
+
+const FACT_CENTER_X = 900;
+const FACT_CENTER_Y = 560;
+
+function estimateNodeHeight(columnCount: number): number {
+  const listHeight = Math.min(columnCount * ROW_HEIGHT, MAX_LIST_HEIGHT) || 40;
+  return HEADER_HEIGHT + listHeight + BODY_PADDING;
+}
+
+// True star-schema layout: the fact table sits at the hub, dimension
+// tables are spread evenly around it on a circle. Radius grows with the
+// dimension count (and node size) so spokes never crowd or overlap
+// regardless of how many dimension tables the model has.
+function dimensionStarPosition({
+  index,
+  count,
+  nodeWidth,
+  nodeHeight,
+}: {
+  index: number;
+  count: number;
+  nodeWidth: number;
+  nodeHeight: number;
+}): { x: number; y: number } {
+  const radius = Math.max(420, count * 95, nodeWidth * 1.3);
+  const angle = (2 * Math.PI * index) / count - Math.PI / 2;
+
+  return {
+    x: FACT_CENTER_X + radius * Math.cos(angle) - nodeWidth / 2,
+    y: FACT_CENTER_Y + radius * Math.sin(angle) - nodeHeight / 2,
+  };
+}
 
 export default function ModelRelationshipsPage() {
   const params = useParams<{ modelId: string }>();
@@ -37,6 +76,7 @@ export default function ModelRelationshipsPage() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
   const [detecting, setDetecting] = useState(false);
+  const [resettingLayout, setResettingLayout] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activePanel, setActivePanel] = useState<ActivePanel>("none");
   const [selectedRelationshipId, setSelectedRelationshipId] = useState<string | null>(null);
@@ -89,23 +129,30 @@ export default function ModelRelationshipsPage() {
       const loadedNodes: Node[] = modelDetail.tables.map((table) => {
         const layout = layoutByTableId.get(table.id);
         const dimensionIndex = dimensions.findIndex((dimension) => dimension.id === table.id);
+        const columnCount = modelDetail.model_columns.filter(
+          (column) => column.model_table_id === table.id
+        ).length;
+        const nodeHeight = estimateNodeHeight(columnCount);
+
+        const defaultPosition =
+          table.table_role === "fact"
+            ? {
+                x: FACT_CENTER_X - NODE_WIDTH / 2,
+                y: FACT_CENTER_Y - nodeHeight / 2,
+              }
+            : dimensionStarPosition({
+                index: dimensionIndex,
+                count: dimensions.length || 1,
+                nodeWidth: NODE_WIDTH,
+                nodeHeight,
+              });
 
         return {
           id: table.id,
           type: "default",
           position: {
-            x:
-              layout?.x_position ??
-              (table.table_role === "fact"
-                ? 720
-                : dimensionIndex % 2 === 0
-                  ? 220
-                  : 1180),
-            y:
-              layout?.y_position ??
-              (table.table_role === "fact"
-                ? 360
-                : 120 + Math.floor(dimensionIndex / 2) * 280),
+            x: layout?.x_position ?? defaultPosition.x,
+            y: layout?.y_position ?? defaultPosition.y,
           },
           data: {
             label: table.display_name,
@@ -185,6 +232,29 @@ export default function ModelRelationshipsPage() {
       setDetecting(false);
     }
   }
+  async function handleResetLayout() {
+    if (!modelId) return;
+
+    const confirmed = window.confirm(
+      "Reset this diagram to the default star-schema layout? Any tables you've dragged into custom positions will snap back to the fact-centered arrangement."
+    );
+
+    if (!confirmed) return;
+
+    setResettingLayout(true);
+    setMessage(null);
+
+    try {
+      await resetModelLayout(modelId);
+      setMessage("Layout reset to the default star schema.");
+      await loadModel();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Failed to reset layout.");
+    } finally {
+      setResettingLayout(false);
+    }
+  }
+
   function handleEditRelationship(relationshipId: string) {
     const relationship = detail?.relationships.find(
       (item) => item.id === relationshipId
@@ -345,6 +415,16 @@ export default function ModelRelationshipsPage() {
               className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
             >
               Manage
+            </button>
+
+            <button
+              type="button"
+              disabled={resettingLayout}
+              onClick={handleResetLayout}
+              title="Snap tables back to the default star-schema layout"
+              className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/10"
+            >
+              {resettingLayout ? "Resetting..." : "Reset Layout"}
             </button>
           </div>
         </div>

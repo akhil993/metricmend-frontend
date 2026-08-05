@@ -1,6 +1,8 @@
 "use client";
 
-import type { MiraMessage, MiraThread } from "@/lib/api/mira";
+import { AlertTriangle, RefreshCw, X } from "lucide-react";
+
+import type { MiraMessage, MiraProgressEvent, MiraThread } from "@/lib/api/mira";
 import MiraEmptyState from "./MiraEmptyState";
 import MiraInputBar from "./MiraInputBar";
 import MiraMessageList from "./MiraMessageList";
@@ -17,6 +19,10 @@ type Props = {
   workspaceLabel?: string;
   modelName?: string | null;
   thinkingQuestion?: string | null;
+  progressEvents?: MiraProgressEvent[];
+  connectionIssue?: string | null;
+  onDismissConnectionIssue?: () => void;
+  onRetryConnectionCheck?: () => void;
   onSend: (message: string, displayText?: string) => void;
 };
 
@@ -32,10 +38,44 @@ export default function MiraChatWorkspace({
   workspaceLabel,
   modelName,
   thinkingQuestion,
+  progressEvents,
+  connectionIssue,
+  onDismissConnectionIssue,
+  onRetryConnectionCheck,
   onSend,
 }: Props) {
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-slate-50 dark:bg-[#070810]">
+      {connectionIssue ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-400/20 dark:bg-amber-400/10 sm:px-6">
+          <div className="mx-auto flex max-w-3xl items-start gap-3">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-300" />
+
+            <p className="flex-1 text-sm leading-6 text-amber-800 dark:text-amber-100">
+              {connectionIssue}
+            </p>
+
+            <button
+              type="button"
+              onClick={onRetryConnectionCheck}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-amber-800 transition hover:bg-amber-100 dark:text-amber-100 dark:hover:bg-amber-400/15"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Retry
+            </button>
+
+            <button
+              type="button"
+              onClick={onDismissConnectionIssue}
+              aria-label="Dismiss"
+              className="shrink-0 rounded-lg p-1 text-amber-600 transition hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-400/15"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex min-h-0 flex-1 flex-col">
         {loading ? (
           <div className="flex flex-1 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
@@ -53,6 +93,7 @@ export default function MiraChatWorkspace({
             workspaceLabel={workspaceLabel}
             modelName={modelName}
             thinkingQuestion={thinkingQuestion}
+            progressEvents={progressEvents}
             onDrilldown={(executionPrompt, displayText) => {
               onSend(executionPrompt, displayText);
             }}

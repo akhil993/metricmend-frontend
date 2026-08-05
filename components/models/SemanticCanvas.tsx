@@ -78,6 +78,12 @@ function SemanticCanvasInner({
     [nodes]
   );
 
+  // Keyed on node identity, not just count -- swapping to a different model
+  // with the same number of tables (or a layout reload) must still refit,
+  // which a plain length-based dependency would silently miss.
+  const nodeIdentityKey = styledNodes.map((node) => node.id).join(",");
+  const edgeIdentityKey = edges.map((edge) => edge.id).join(",");
+
   useEffect(() => {
     if (!styledNodes.length) return;
 
@@ -90,7 +96,7 @@ function SemanticCanvasInner({
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [fitView, styledNodes.length, edges.length]);
+  }, [fitView, styledNodes.length, nodeIdentityKey, edgeIdentityKey]);
 
   return (
     <div className="h-full w-full bg-[#071018]">

@@ -73,6 +73,17 @@ export type MiraAskResponse = {
   suggested_questions?: string[];
 };
 
+export type MiraProgressEvent = {
+  event: string;
+  label: string;
+  receivedAt?: number;
+};
+
+export type MiraAskStreamOptions = {
+  onProgress?: (event: MiraProgressEvent) => void;
+  signal?: AbortSignal;
+};
+
 export type MiraActionPayload = {
   workspace_id: string;
   user_id: string;
@@ -131,6 +142,76 @@ async function request<T>(
   } finally {
     window.clearTimeout(timeout);
   }
+}
+
+async function requestStream<T>(
+  path: string,
+  body: unknown,
+  options?: MiraAskStreamOptions,
+): Promise<T> {
+  const [accessToken, userId] = await Promise.all([
+    getCurrentAccessToken(),
+    getCurrentUserId(),
+  ]);
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    signal: options?.signal,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      Authorization: `Bearer ${accessToken}`,
+      "user-id": userId,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok || !response.body) {
+    const text = await response.text().catch(() => "");
+    throw new Error(text || "Mira request failed");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+
+    let separatorIndex = buffer.indexOf("\n\n");
+
+    while (separatorIndex !== -1) {
+      const rawFrame = buffer.slice(0, separatorIndex).trim();
+      buffer = buffer.slice(separatorIndex + 2);
+
+      if (rawFrame.startsWith("data: ")) {
+        const frame = JSON.parse(rawFrame.slice("data: ".length));
+
+        if (frame.type === "progress") {
+          options?.onProgress?.({
+            event: frame.event,
+            label: frame.label,
+          });
+        } else if (frame.type === "result") {
+          return frame.payload as T;
+        } else if (frame.type === "error") {
+          throw new Error(
+            frame.detail || "Mira failed to answer this question.",
+          );
+        }
+      }
+
+      separatorIndex = buffer.indexOf("\n\n");
+    }
+  }
+
+  throw new Error("Mira stream ended without a result.");
 }
 
 export async function getMiraThreads(params: {
@@ -225,6 +306,24 @@ export async function askGlobalMira(
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export async function askMiraStream(
+  payload: MiraAskPayload,
+  options?: MiraAskStreamOptions,
+): Promise<MiraAskResponse> {
+  return requestStream<MiraAskResponse>("/api/mira/ask", payload, options);
+}
+
+export async function askGlobalMiraStream(
+  payload: GlobalMiraAskPayload,
+  options?: MiraAskStreamOptions,
+): Promise<MiraAskResponse> {
+  return requestStream<MiraAskResponse>(
+    "/api/mira/ask/global",
+    payload,
+    options,
+  );
 }
 
 export async function saveMiraInsight(

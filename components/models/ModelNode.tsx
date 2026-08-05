@@ -29,8 +29,18 @@ export default function ModelNode({ data }: Props) {
           : "border-violet-400/30 bg-violet-500/10",
       ].join(" ")}
     >
-      <Handle id="left-target" type="target" position={Position.Left} />
-      <Handle id="right-target" type="target" position={Position.Right} />
+      <Handle
+        id="left-target"
+        type="target"
+        position={Position.Left}
+        style={{ top: "38%" }}
+      />
+      <Handle
+        id="right-target"
+        type="target"
+        position={Position.Right}
+        style={{ top: "38%" }}
+      />
 
       <div
         className={[
@@ -67,8 +77,18 @@ export default function ModelNode({ data }: Props) {
         )}
       </div>
 
-      <Handle id="left-source" type="source" position={Position.Left} />
-      <Handle id="right-source" type="source" position={Position.Right} />
+      <Handle
+        id="left-source"
+        type="source"
+        position={Position.Left}
+        style={{ top: "62%" }}
+      />
+      <Handle
+        id="right-source"
+        type="source"
+        position={Position.Right}
+        style={{ top: "62%" }}
+      />
     </div>
   );
 }

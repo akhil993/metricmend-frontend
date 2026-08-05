@@ -3,6 +3,9 @@
 import {
   BarChart3,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Code2,
   Lightbulb,
   Route,
   ShieldCheck,
@@ -97,6 +100,8 @@ export default function MiraMessageBubble({
 
   const [loadingAction, setLoadingAction] = useState<MiraActionKey | null>(null);
   const [actionStatus, setActionStatus] = useState<string | null>(null);
+  const [showGovernedPath, setShowGovernedPath] = useState(false);
+  const [showQuery, setShowQuery] = useState(false);
 
   const metadata = message.metadata as
     | {
@@ -119,6 +124,9 @@ export default function MiraMessageBubble({
             grain?: string;
           } | null;
         };
+        sql_payload?: {
+          sql?: string;
+        } | null;
       }
     | undefined;
 
@@ -143,6 +151,7 @@ export default function MiraMessageBubble({
 
   const semanticContext = metadata?.semantic_context;
   const progressEvents = metadata?.progress_events || [];
+  const querySql = metadata?.sql_payload?.sql?.trim();
 
   const metricLabel =
     semanticContext?.metrics?.[0] ||
@@ -405,34 +414,69 @@ export default function MiraMessageBubble({
         ) : null}
 
         {!isUser && progressEvents.length ? (
-          <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-white/10 dark:bg-white/[0.035]">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                <Route className="h-4 w-4" />
-                Governed analysis path
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={() => setShowGovernedPath((current) => !current)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200 dark:hover:bg-emerald-400/20"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Verified · governed path
+              {showGovernedPath ? (
+                <ChevronUp className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" />
+              )}
+            </button>
+
+            {showGovernedPath ? (
+              <div className="mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.05]">
+                <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-100">
+                  <Route className="h-4 w-4" />
+                  Governed analysis path
+                </div>
+
+                <div className="grid gap-2 p-4 sm:grid-cols-2">
+                  {progressEvents.slice(0, 8).map((event, index) => {
+                    const label = getProcessLabel(event);
+
+                    return (
+                      <div
+                        key={`${label}-${index}`}
+                        className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300"
+                      >
+                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                        <span className="leading-5">{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+            ) : null}
+          </div>
+        ) : null}
 
-              <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Verified workflow
-              </div>
-            </div>
+        {!isUser && querySql ? (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowQuery((current) => !current)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300 dark:hover:bg-white/[0.08]"
+            >
+              <Code2 className="h-3.5 w-3.5" />
+              View query
+              {showQuery ? (
+                <ChevronUp className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" />
+              )}
+            </button>
 
-            <div className="grid gap-2 p-4 sm:grid-cols-2">
-              {progressEvents.slice(0, 8).map((event, index) => {
-                const label = getProcessLabel(event);
-
-                return (
-                  <div
-                    key={`${label}-${index}`}
-                    className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300"
-                  >
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                    <span className="leading-5">{label}</span>
-                  </div>
-                );
-              })}
-            </div>
+            {showQuery ? (
+              <pre className="mt-2 max-h-72 overflow-auto rounded-2xl border border-slate-200 bg-slate-950 p-4 text-xs leading-6 text-slate-100 dark:border-white/10">
+                <code>{querySql}</code>
+              </pre>
+            ) : null}
           </div>
         ) : null}
 

@@ -1,6 +1,8 @@
 "use client";
 
-import { CheckSquare, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, CheckSquare, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import type { MiraThread } from "@/lib/api/mira";
 import MiraConversationCard from "./MiraConversationCard";
 
@@ -31,8 +33,22 @@ export default function MiraChatSidebar({
   onDeleteSelectedThreads,
   onToggleSelectionMode,
 }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
+
   const selectedCount = selectedThreadIds.length;
   const allSelected = threads.length > 0 && selectedCount === threads.length;
+
+  const visibleThreads = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    if (!normalizedQuery) {
+      return threads;
+    }
+
+    return threads.filter((thread) =>
+      (thread.title || "New Chat").toLowerCase().includes(normalizedQuery),
+    );
+  }, [threads, searchQuery]);
 
   function handleToggleAll() {
     if (allSelected) {
@@ -54,6 +70,14 @@ export default function MiraChatSidebar({
   return (
     <aside className="flex h-full w-[280px] shrink-0 flex-col border-r border-slate-200 bg-slate-50 text-slate-950 dark:border-white/10 dark:bg-[#070810] dark:text-white sm:w-[300px]">
       <div className="border-b border-slate-200/80 p-3 dark:border-white/10">
+        <Link
+          href="/app/workspaces"
+          className="mb-3 inline-flex items-center gap-2 px-1 text-sm text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Workspaces
+        </Link>
+
         <div className="mb-3 flex items-center gap-2 px-1">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-white shadow-sm dark:bg-white dark:text-slate-950">
             <Sparkles className="h-4 w-4" />
@@ -133,6 +157,19 @@ export default function MiraChatSidebar({
             {selectedCount} selected
           </p>
         ) : null}
+
+        {!selectionMode && threads.length > 0 ? (
+          <div className="relative mt-3">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search chats..."
+              className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none dark:border-white/10 dark:bg-white/[0.04] dark:text-white dark:placeholder:text-slate-500 dark:focus:border-white/30"
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-3">
@@ -146,9 +183,13 @@ export default function MiraChatSidebar({
           <div className="rounded-xl border border-slate-200 bg-white/[0.06]0 p-4 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-400">
             No chats yet. Start a new Mira conversation.
           </div>
+        ) : !selectionMode && visibleThreads.length === 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-white/[0.06]0 p-4 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-400">
+            No chats match your search.
+          </div>
         ) : (
           <div className="space-y-1">
-            {threads.map((thread) => {
+            {(selectionMode ? threads : visibleThreads).map((thread) => {
               const selected = selectedThreadIds.includes(thread.id);
 
               return (

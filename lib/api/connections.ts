@@ -146,6 +146,33 @@ export async function getWorkspaceConnections(
   return response.json();
 }
 
+export type ConnectionTestResult = {
+  success: boolean;
+  message: string;
+  details?: Record<string, unknown> | null;
+};
+
+export async function testSavedConnection(
+  connectionId: string
+): Promise<ConnectionTestResult> {
+  const authHeaders = await getAuthHeaders();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/connections/${connectionId}/test-saved`,
+    {
+      method: "POST",
+      headers: authHeaders,
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.detail ?? "Failed to test connection.");
+  }
+
+  return response.json();
+}
+
 export async function updateConnection(
   connectionId: string,
   payload: {
