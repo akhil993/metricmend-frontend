@@ -135,9 +135,9 @@ export default function HomePage() {
         </Link>
       </div>
 
-      <section className="relative overflow-hidden pt-20">
+      <section className="relative overflow-hidden pt-8">
         <div className="absolute inset-0 bg-[linear-gradient(135deg,#fffaf3_0%,#ffe8d1_24%,#eaf1ff_48%,#ffd7c2_74%,#fff1e6_100%)]" />
-        <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-12 text-center md:pt-20">
+        <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-8 text-center md:pt-10">
           <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-semibold text-[#5c4b43] shadow-sm backdrop-blur-xl">
             <Sparkles className="h-4 w-4 text-[#ff6a2a]" />
             Governed AI analytics with a signature feel

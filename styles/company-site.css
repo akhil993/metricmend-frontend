@@ -3115,8 +3115,8 @@ main {
 }
 
 .insightmend-page-auth {
-  position: fixed;
-  top: 94px;
+  position: absolute;
+  top: 72px;
   right: 24px;
   z-index: 70;
   display: flex;
@@ -3141,13 +3141,43 @@ main {
 
 .page-section-auth .nav-login-link,
 .page-section-auth .nav-signup-link {
+  display: inline-flex;
+  grid-template-columns: none;
   min-height: 2.25rem;
   padding-inline: 0.65rem;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.page-section-auth a.nav-login-link {
+  color: var(--color-heading);
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.page-section-auth a.nav-signup-link {
+  color: #ffffff;
+  background: #211a17;
+  border-color: #211a17;
+}
+
+.page-section-auth a.nav-login-link:hover {
+  color: var(--color-heading);
+  background: var(--color-canvas-subtle);
+}
+
+.page-section-auth a.nav-signup-link:hover {
+  color: #ffffff;
+  background: #35231c;
+  border-color: #35231c;
 }
 
 @media (max-width: 900px) {
   .insightmend-page-auth {
-    top: 84px;
+    top: 68px;
     right: 12px;
   }
 
