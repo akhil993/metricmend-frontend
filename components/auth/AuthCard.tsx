@@ -96,7 +96,7 @@ export default function AuthCard({ mode }: AuthCardProps) {
         <section className="relative hidden overflow-hidden lg:block">
           <Image
             src="/portfolio/05-workspace-Overview.png"
-            alt="MetricMend governed analytics workspace"
+            alt="InsightMend governed analytics workspace"
             fill
             priority
             className="object-cover object-left-top"
@@ -121,7 +121,7 @@ export default function AuthCard({ mode }: AuthCardProps) {
               </h1>
 
               <p className="mt-5 max-w-xl text-base leading-7 text-[#31515b]">
-                MetricMend brings connections, semantic models, certified
+                InsightMend brings connections, semantic models, certified
                 metrics, and Mira into one clear product experience.
               </p>
 
@@ -151,14 +151,14 @@ export default function AuthCard({ mode }: AuthCardProps) {
             <div className="w-full max-w-md">
               <div className="mb-8">
                 <p className="text-sm font-semibold text-[#0f8f72]">
-                  MetricMend
+                  InsightMend
                 </p>
                 <h2 className="mt-2 text-4xl font-semibold leading-tight tracking-tight text-[#102f36]">
                   {isSignup ? "Create your account." : "Welcome back."}
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-[#557077]">
                   {isSignup
-                    ? "Set up your account, then MetricMend will guide you through company and workspace setup."
+                    ? "Set up your account, then InsightMend will guide you through company and workspace setup."
                     : "Sign in to continue building models, managing metrics, and asking Mira governed questions."}
                 </p>
               </div>
@@ -179,7 +179,7 @@ export default function AuthCard({ mode }: AuthCardProps) {
                     <p className="text-xs text-[#6b8389]">
                       {isSignup
                         ? "Free trial includes Mira credits"
-                        : "Use your MetricMend credentials"}
+                        : "Use your InsightMend credentials"}
                     </p>
                   </div>
                 </div>
@@ -247,14 +247,14 @@ export default function AuthCard({ mode }: AuthCardProps) {
                     <BadgeCheck className="mt-0.5 h-4 w-4 text-[#0f8f72]" />
                     <p className="text-xs leading-5 text-[#557077]">
                       {isSignup
-                        ? "Signup creates a customer workspace account only. MetricMend internal employee access is granted separately by an existing internal admin."
-                        : "Your session opens MetricMend with workspace context, billing status, and Mira access ready."}
+                        ? "Signup creates a customer workspace account only. MetricMend AI internal employee access is granted separately by an existing internal admin."
+                        : "Your session opens InsightMend with workspace context, billing status, and Mira access ready."}
                     </p>
                   </div>
                 </div>
 
                 <p className="mt-6 text-center text-sm text-[#557077]">
-                  {isSignup ? "Already have an account?" : "New to MetricMend?"}{" "}
+                  {isSignup ? "Already have an account?" : "New to InsightMend?"}{" "}
                   <Link
                     href={isSignup ? "/login" : "/signup"}
                     className="font-semibold text-[#0f8f72] hover:text-[#075844]"

@@ -1,0 +1,251 @@
+/* MetricMeld AI color system v1.0
+   Semantic tokens are the public API. Product accents may change by setting
+   data-product on any app shell: metricmeld | lifemeld | metricmend | techmeld. */
+
+:root {
+  color-scheme: light;
+
+  /* Brand primitives */
+  --mm-gold-50: #faf6e8;
+  --mm-gold-100: #f3e9c5;
+  --mm-gold-200: #e7d38f;
+  --mm-gold-300: #d7b95e;
+  --mm-gold-400: #bf9638;
+  --mm-gold-500: #9b7426;
+  --mm-gold-600: #79591f;
+  --mm-gold-700: #5e451d;
+  --mm-gold-800: #49371b;
+  --mm-gold-900: #3d2f19;
+  --mm-silver-50: #f7f8f8;
+  --mm-silver-100: #eceeef;
+  --mm-silver-200: #d9dddf;
+  --mm-silver-300: #bcc3c7;
+  --mm-silver-400: #929da3;
+  --mm-silver-500: #707c83;
+  --mm-silver-600: #59636a;
+  --mm-silver-700: #485158;
+  --mm-silver-800: #3c4348;
+  --mm-silver-900: #33393d;
+
+  /* Warm neutral canvas */
+  --mm-stone-0: #fffefa;
+  --mm-stone-25: #fbfaf6;
+  --mm-stone-50: #f7f5f0;
+  --mm-stone-100: #efede7;
+  --mm-stone-200: #e1ded6;
+  --mm-stone-300: #cbc7bd;
+  --mm-stone-400: #9d988e;
+  --mm-stone-500: #746f67;
+  --mm-stone-600: #57534d;
+  --mm-stone-700: #403d39;
+  --mm-stone-800: #292826;
+  --mm-stone-900: #1c1c1a;
+  --mm-stone-950: #121311;
+
+  /* Product primitives */
+  --lifemeld-100: #e6f0e9;
+  --lifemeld-500: #4f7d68;
+  --lifemeld-700: #335746;
+  --metricmend-100: #e1ebf2;
+  --metricmend-500: #3f708e;
+  --metricmend-700: #28526c;
+  --techmeld-100: #e4e9f3;
+  --techmeld-500: #526a9b;
+  --techmeld-700: #384d78;
+
+  /* Background hierarchy */
+  --color-canvas: #f7f5f0;
+  --color-canvas-subtle: #efede7;
+  --color-surface: #fffefa;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #f1efe9;
+  --color-nav: rgba(247, 245, 240, 0.92);
+  --color-footer: #252522;
+  --color-modal: #fffefa;
+  --color-popover: #ffffff;
+  --color-sidebar: #f2f0ea;
+  --color-dashboard-panel: #fffefa;
+  --color-table-header: #eeece6;
+  --color-code: #252724;
+  --color-hero: #f3f0e8;
+  --color-overlay: rgba(28, 28, 26, 0.42);
+
+  /* Typography */
+  --color-heading: #1c1c1a;
+  --color-heading-secondary: #403d39;
+  --color-text: #3d3b37;
+  --color-text-muted: #68645d;
+  --color-caption: #746f67;
+  --color-text-disabled: #98938a;
+  --color-link: #4e638c;
+  --color-link-hover: #344a76;
+  --color-on-accent: #fffdf7;
+  --color-on-dark: #f7f5f0;
+
+  /* Brand and interaction */
+  --color-brand: #9b7426;
+  --color-brand-hover: #79591f;
+  --color-brand-soft: #f3e9c5;
+  --color-accent: #9b7426;
+  --color-accent-hover: #79591f;
+  --color-accent-soft: #f3e9c5;
+  --color-focus: #526a9b;
+
+  /* Borders */
+  --color-border-subtle: #e1ded6;
+  --color-border: #cbc7bd;
+  --color-border-strong: #9d988e;
+  --color-border-interactive: #929da3;
+
+  /* Status */
+  --color-success: #276346;
+  --color-success-soft: #e4f0e8;
+  --color-error: #9b3a3a;
+  --color-error-soft: #f8e7e5;
+  --color-warning: #875d16;
+  --color-warning-soft: #f8edcf;
+  --color-info: #356585;
+  --color-info-soft: #e3eef5;
+  --color-pending: #725c91;
+  --color-pending-soft: #eee8f5;
+  --color-archived: #68645d;
+  --color-archived-soft: #eceae5;
+  --color-new: #28685f;
+  --color-new-soft: #e1f1ed;
+  --color-ai: #5e568c;
+  --color-ai-soft: #ebe9f5;
+  --color-beta: #8a552c;
+  --color-beta-soft: #f6e9dc;
+  --color-premium: #79591f;
+  --color-premium-soft: #f3e9c5;
+
+  /* Data visualization: categorical colors are intentionally mid-chroma. */
+  --chart-1: #3f708e;
+  --chart-2: #4f7d68;
+  --chart-3: #8a6540;
+  --chart-4: #6a6293;
+  --chart-5: #9a5960;
+  --chart-6: #527b7c;
+  --chart-grid: #e1ded6;
+  --chart-axis: #746f67;
+
+  /* Elevation: borders carry most hierarchy; shadows remain quiet. */
+  --shadow-1: 0 1px 2px rgba(35, 32, 26, 0.05);
+  --shadow-2: 0 4px 14px rgba(35, 32, 26, 0.07);
+  --shadow-3: 0 12px 32px rgba(35, 32, 26, 0.10);
+  --shadow-4: 0 24px 64px rgba(35, 32, 26, 0.14);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-canvas: #151614;
+  --color-canvas-subtle: #1a1b18;
+  --color-surface: #1d1e1b;
+  --color-surface-raised: #232420;
+  --color-surface-sunken: #121310;
+  --color-nav: rgba(21, 22, 20, 0.92);
+  --color-footer: #10110f;
+  --color-modal: #232420;
+  --color-popover: #272824;
+  --color-sidebar: #191a17;
+  --color-dashboard-panel: #1d1e1b;
+  --color-table-header: #242520;
+  --color-code: #10120f;
+  --color-hero: #191a17;
+  --color-overlay: rgba(4, 5, 4, 0.68);
+  --color-heading: #f3f1ea;
+  --color-heading-secondary: #d8d5cc;
+  --color-text: #d0cdc4;
+  --color-text-muted: #aaa69d;
+  --color-caption: #96938a;
+  --color-text-disabled: #6f6d66;
+  --color-link: #a9b9db;
+  --color-link-hover: #c5d2ed;
+  --color-on-accent: #17130a;
+  --color-on-dark: #f3f1ea;
+  --color-brand: #d7b95e;
+  --color-brand-hover: #e7d38f;
+  --color-brand-soft: #3d321d;
+  --color-accent: #d7b95e;
+  --color-accent-hover: #e7d38f;
+  --color-accent-soft: #3d321d;
+  --color-focus: #93a8d3;
+  --color-border-subtle: #30312d;
+  --color-border: #41423d;
+  --color-border-strong: #5b5c55;
+  --color-border-interactive: #70716a;
+  --color-success: #86c5a1;
+  --color-success-soft: #1d3929;
+  --color-error: #e6a09b;
+  --color-error-soft: #452526;
+  --color-warning: #dfbc72;
+  --color-warning-soft: #41341d;
+  --color-info: #92bcd6;
+  --color-info-soft: #203746;
+  --color-pending: #baa7d7;
+  --color-pending-soft: #352b43;
+  --color-archived: #aaa69d;
+  --color-archived-soft: #30312d;
+  --color-new: #87c9bc;
+  --color-new-soft: #1c3a35;
+  --color-ai: #b7addc;
+  --color-ai-soft: #322d49;
+  --color-beta: #ddb18a;
+  --color-beta-soft: #422e21;
+  --color-premium: #e7d38f;
+  --color-premium-soft: #3d321d;
+  --chart-1: #84afd0;
+  --chart-2: #83b69a;
+  --chart-3: #c39b70;
+  --chart-4: #aaa0d1;
+  --chart-5: #ca8990;
+  --chart-6: #81b2b2;
+  --chart-grid: #353631;
+  --chart-axis: #aaa69d;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-2: 0 6px 18px rgba(0, 0, 0, 0.28);
+  --shadow-3: 0 16px 38px rgba(0, 0, 0, 0.34);
+  --shadow-4: 0 28px 72px rgba(0, 0, 0, 0.42);
+}
+
+[data-product="lifemeld"] {
+  --color-accent: #4f7d68;
+  --color-accent-hover: #335746;
+  --color-accent-soft: #e6f0e9;
+}
+[data-product="metricmend"] {
+  --color-accent: #3f708e;
+  --color-accent-hover: #28526c;
+  --color-accent-soft: #e1ebf2;
+}
+[data-product="techmeld"] {
+  --color-accent: #526a9b;
+  --color-accent-hover: #384d78;
+  --color-accent-soft: #e4e9f3;
+}
+[data-theme="dark"][data-product="lifemeld"] { --color-accent: #83b69a; --color-accent-hover: #a5ccb4; --color-accent-soft: #21382b; }
+[data-theme="dark"][data-product="metricmend"] { --color-accent: #84afd0; --color-accent-hover: #a8c7df; --color-accent-soft: #203746; }
+[data-theme="dark"][data-product="techmeld"] { --color-accent: #93a8d3; --color-accent-hover: #b4c2df; --color-accent-soft: #292f43; }
+
+/* Tailwind CSS v4 theme tokens. */
+@theme inline {
+  --color-ui-canvas: var(--color-canvas);
+  --color-ui-canvas-subtle: var(--color-canvas-subtle);
+  --color-ui-surface: var(--color-surface);
+  --color-ui-surface-raised: var(--color-surface-raised);
+  --color-ui-surface-sunken: var(--color-surface-sunken);
+  --color-ui-heading: var(--color-heading);
+  --color-ui-body: var(--color-text);
+  --color-ui-muted: var(--color-text-muted);
+  --color-ui-caption: var(--color-caption);
+  --color-ui-link: var(--color-link);
+  --color-ui-brand: var(--color-brand);
+  --color-ui-accent: var(--color-accent);
+  --color-ui-accent-soft: var(--color-accent-soft);
+  --color-ui-border: var(--color-border);
+  --color-ui-border-subtle: var(--color-border-subtle);
+  --color-ui-success: var(--color-success);
+  --color-ui-error: var(--color-error);
+  --color-ui-warning: var(--color-warning);
+  --color-ui-info: var(--color-info);
+}

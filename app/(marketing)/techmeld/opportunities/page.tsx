@@ -4,12 +4,18 @@ import {
   fetchLiveMendJobs,
   type MendJob,
 } from "@/lib/mendjobs-sources";
-import MendJobsClient from "./MendJobsClient";
+import MendJobsClient from "@/app/mendjobs/MendJobsClient";
+
+export const metadata = {
+  title: "Global Technology Opportunities | TechMeld",
+  description:
+    "Discover technology, data, engineering, product, and AI opportunities from companies around the world.",
+};
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
-export default async function MendJobsPage() {
+export default async function TechMeldOpportunitiesPage() {
   const supabase = mendjobsPublic();
 
   const [{ data: dbJobs }, liveJobs] = await Promise.all([

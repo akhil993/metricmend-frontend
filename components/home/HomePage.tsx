@@ -14,7 +14,6 @@ import {
   Workflow,
 } from "lucide-react";
 
-import MetricMendLogo from "../shared/MetricMendLogo";
 import MiraAnimatedPreview from "./MiraAnimatedPreview";
 
 const journey = [
@@ -85,17 +84,6 @@ const showcaseScreens = [
   },
 ];
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      className="rounded-full px-4 py-2 text-sm font-medium text-[#5c4b43] transition hover:bg-white/80 hover:text-[#211a17]"
-    >
-      {children}
-    </a>
-  );
-}
-
 function JourneyStep({
   icon: Icon,
   label,
@@ -138,37 +126,16 @@ function TrustControl({
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#fffaf3] text-[#211a17]">
-      <nav className="fixed inset-x-0 top-0 z-50 border-b border-[#efd9ca] bg-[#fffaf3]/95 shadow-[0_10px_34px_rgba(80,56,104,0.08)] backdrop-blur-2xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-          <Link href="/" className="rounded-full bg-[#211a17] px-3 py-2">
-            <MetricMendLogo variant="inverse" />
-          </Link>
+      <div className="insightmend-page-auth" aria-label="InsightMend account actions">
+        <Link href="/login" className="nav-login-link">
+          Login
+        </Link>
+        <Link href="/signup" className="nav-signup-link">
+          Sign up
+        </Link>
+      </div>
 
-          <div className="hidden items-center gap-1 md:flex">
-            <NavLink href="#platform">Platform</NavLink>
-            <NavLink href="#mira">Mira</NavLink>
-            <NavLink href="#trust">Trust</NavLink>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center rounded-full border border-[#d7bba7] bg-white px-4 py-2 text-sm font-semibold text-[#211a17] shadow-sm transition hover:border-[#bd947a] hover:bg-[#fff8f1]"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="hidden items-center justify-center gap-2 rounded-full bg-[#ff6a2a] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(255,111,97,0.28)] transition hover:bg-[#ff7c45] sm:inline-flex"
-            >
-              Start free
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <section className="relative overflow-hidden pt-28">
+      <section className="relative overflow-hidden pt-20">
         <div className="absolute inset-0 bg-[linear-gradient(135deg,#fffaf3_0%,#ffe8d1_24%,#eaf1ff_48%,#ffd7c2_74%,#fff1e6_100%)]" />
         <div className="relative mx-auto max-w-7xl px-5 pb-14 pt-12 text-center md:pt-20">
           <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-semibold text-[#5c4b43] shadow-sm backdrop-blur-xl">
@@ -177,7 +144,7 @@ export default function HomePage() {
           </p>
 
           <h1 className="mx-auto mt-7 max-w-5xl text-6xl font-semibold leading-[0.98] tracking-tight text-[#211a17] md:text-8xl">
-            MetricMend
+            InsightMend
           </h1>
 
           <p className="mx-auto mt-7 max-w-3xl text-xl font-medium leading-8 text-[#5c4b43] md:text-2xl md:leading-9">
@@ -207,7 +174,7 @@ export default function HomePage() {
               <div className="relative aspect-[16/9] overflow-hidden rounded-lg bg-[#ffe8d1]">
                 <Image
                   src="/portfolio/09-mira-empty.png"
-                  alt="MetricMend Mira AI analyst workspace"
+                  alt="InsightMend Mira AI analyst workspace"
                   fill
                   priority
                   className="object-cover object-left-top"
@@ -227,7 +194,7 @@ export default function HomePage() {
               One calm path from raw data to trusted answer.
             </h2>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[#6f5f55]">
-              MetricMend makes the operating model obvious: connect your data,
+              InsightMend makes the operating model obvious: connect your data,
               model your business language, then let Mira answer inside those
               rules.
             </p>
@@ -355,11 +322,11 @@ export default function HomePage() {
 
       <footer className="border-t border-[#efd9ca] bg-[#fffaf3]">
         <div className="mx-auto grid max-w-7xl gap-4 px-5 py-7 text-sm text-[#8a6f60] md:grid-cols-3">
-          <p className="font-semibold text-[#211a17]">MetricMend</p>
+          <p className="font-semibold text-[#211a17]">InsightMend</p>
           <p className="md:text-center">
             Governed AI analytics with a product experience people understand.
           </p>
-          <p className="md:text-right">2026 MetricMend. All rights reserved.</p>
+          <p className="md:text-right">2026 MetricMend AI. All rights reserved.</p>
         </div>
       </footer>
     </main>

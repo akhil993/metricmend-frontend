@@ -67,7 +67,7 @@ export async function POST(req: Request) {
         {
           allowed: false,
           message:
-            "Your comment violates our community policy. Discrimination, harassment, threats, or abusive language are not allowed on MendJobs.",
+            "Your comment violates our community policy. Discrimination, harassment, threats, or abusive language are not allowed on TechMeld Opportunities.",
         },
         { status: 403 }
       );

@@ -179,7 +179,7 @@ export default function MendJobsClient({
       <div className="mx-auto max-w-7xl space-y-5">
         <section className="border border-slate-200 bg-white p-6 shadow-sm">
           <p className="mb-4 inline-flex rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
-            MendJobs by MetricMend
+            TechMeld Opportunities
           </p>
 
           <h1 className="max-w-4xl text-3xl font-semibold tracking-normal md:text-5xl">
@@ -404,9 +404,9 @@ export default function MendJobsClient({
         </section>
 
         <footer className="border border-slate-200 bg-white p-6 text-sm leading-6 text-slate-600">
-          <p className="font-semibold text-slate-900">MendJobs community policy</p>
+          <p className="font-semibold text-slate-900">TechMeld Opportunities community policy</p>
           <p className="mt-2">
-            MendJobs is designed to be a respectful, neutral space for job seekers.
+            TechMeld Opportunities is designed to be a respectful, neutral space for job seekers.
             Comments may be reviewed before posting. Content involving harassment,
             hate, racism, discrimination, threats, abuse, doxxing, or personal attacks
             may be blocked or removed.

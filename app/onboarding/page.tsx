@@ -63,7 +63,7 @@ export default function OnboardingPage() {
             </div>
 
             <h1 className="mt-6 text-4xl font-semibold tracking-tight md:text-6xl">
-              Start with your MetricMend Launchpad.
+              Start with your InsightMend Launchpad.
             </h1>
 
             <p className="mt-5 max-w-xl leading-7 text-neutral-400">

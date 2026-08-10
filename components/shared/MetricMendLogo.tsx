@@ -79,7 +79,7 @@ export default function MetricMendLogo({
               : "text-slate-950 dark:text-white"
           }`}
         >
-          MetricMend
+          InsightMend
         </p>
 
         <p
