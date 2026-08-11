@@ -20,7 +20,7 @@ export default function TermsPage() {
         <h2>Availability and changes</h2>
         <p>We may update, suspend, or discontinue features and may revise these terms as our services evolve. Material updates will be reflected by the date above.</p>
         <h2>Contact</h2>
-        <p>Questions about these terms can be sent to <a href="mailto:hello@metricmendai.com?subject=Terms%20question">hello@metricmendai.com</a>.</p>
+        <p>Questions about these terms can be sent to <a href="mailto:support@metricmendai.com?subject=Terms%20question">support@metricmendai.com</a>.</p>
       </section>
     </main>
   );

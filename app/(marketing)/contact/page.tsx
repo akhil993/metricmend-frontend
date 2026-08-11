@@ -19,8 +19,8 @@ export default function ContactPage() {
           Contact MetricMend AI about products, partnerships, press, or company
           inquiries. We&apos;ll route your note to the right team.
         </p>
-        <a className="primary-button" href="mailto:hello@metricmendai.com">
-          hello@metricmendai.com <ArrowRight size={17} />
+        <a className="primary-button" href="mailto:support@metricmendai.com">
+          support@metricmendai.com <ArrowRight size={17} />
         </a>
       </Reveal>
 
@@ -30,13 +30,13 @@ export default function ContactPage() {
             <div className="feature-icon"><Building2 /></div>
             <h2>Business &amp; partnerships</h2>
             <p>Talk with us about InsightMend, strategic partnerships, or working with MetricMend AI.</p>
-            <a href="mailto:hello@metricmendai.com?subject=Business%20inquiry">Email our team</a>
+            <a href="mailto:support@metricmendai.com?subject=Business%20inquiry">Email our team</a>
           </article>
           <article className="feature-card">
             <div className="feature-icon"><Headphones /></div>
             <h2>Product support</h2>
             <p>For product-specific help, include the product name and the email associated with your account.</p>
-            <a href="mailto:hello@metricmendai.com?subject=Product%20support">Get support</a>
+            <a href="mailto:support@metricmendai.com?subject=Product%20support">Get support</a>
           </article>
           <article className="feature-card">
             <div className="feature-icon"><Mail /></div>

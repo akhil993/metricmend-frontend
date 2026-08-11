@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         <h2>Your choices</h2>
         <p>You may request access, correction, or deletion of your personal information, subject to applicable law and legitimate retention requirements.</p>
         <h2>Contact</h2>
-        <p>Questions or privacy requests can be sent to <a href="mailto:hello@metricmendai.com?subject=Privacy%20request">hello@metricmendai.com</a>.</p>
+        <p>Questions or privacy requests can be sent to <a href="mailto:support@metricmendai.com?subject=Privacy%20request">support@metricmendai.com</a>.</p>
       </section>
     </main>
   );
