@@ -134,8 +134,14 @@ export default function MiraShell({ mode = "global" }: Props) {
                 setConnectionCheckMessage(result.success ? null : result.message);
             } catch (err) {
                 setConnectionHealthy(false);
+                const message =
+                    err instanceof Error
+                        ? err.message
+                        : "Unable to verify the data connection.";
                 setConnectionCheckMessage(
-                    err instanceof Error ? err.message : "Unable to verify the data connection."
+                    message.toLowerCase().includes("not found")
+                        ? "The selected model's data connection is unavailable. Reconnect it or choose another model."
+                        : message
                 );
             }
         },
@@ -147,12 +153,15 @@ export default function MiraShell({ mode = "global" }: Props) {
         setConnectionCheckMessage(null);
         setConnectionBannerDismissed(false);
 
-        if (!activeModel?.connection_id) {
+        // Global Mira resolves the best governed model only after a question is
+        // submitted. Testing the first model's connection at startup produces a
+        // misleading error before the user has selected any analytical context.
+        if (mode === "global" || !activeModel?.connection_id) {
             return;
         }
 
         checkActiveConnection(activeModel.connection_id);
-    }, [activeModel?.connection_id, checkActiveConnection]);
+    }, [mode, activeModel?.connection_id, checkActiveConnection]);
 
     const launchpadWorkspace = useMemo(
         () =>
