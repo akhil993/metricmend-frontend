@@ -17,6 +17,7 @@ import {
   getLaunchpadSummary,
   type LaunchpadSummary,
 } from "@/lib/api/launchpad";
+import { getMyBilling } from "@/lib/api/billing";
 
 const quickActions = [
   {
@@ -59,6 +60,7 @@ export default function AppHomePage() {
   const { activeWorkspace } = useAppWorkspace();
 
   const [summary, setSummary] = useState<LaunchpadSummary | null>(null);
+  const [billingCredits, setBillingCredits] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -79,7 +81,17 @@ export default function AppHomePage() {
     loadSummary();
   }, [activeWorkspace.workspace_id]);
 
+  useEffect(() => {
+    getMyBilling()
+      .then((billing) => setBillingCredits(billing.credits.remaining ?? 0))
+      .catch(() => setBillingCredits(null));
+  }, []);
+
   const miraCreditsLabel = useMemo(() => {
+    if (billingCredits !== null) {
+      return `${billingCredits} remaining`;
+    }
+
     const includedCredits = summary?.limits.included_mira_credits;
 
     if (includedCredits === null || includedCredits === undefined) {
@@ -90,7 +102,7 @@ export default function AppHomePage() {
     const remainingCredits = Math.max(includedCredits - usedCredits, 0);
 
     return `${remainingCredits} remaining`;
-  }, [summary]);
+  }, [billingCredits, summary]);
 
   return (
     <div className="space-y-6">
