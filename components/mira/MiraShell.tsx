@@ -40,7 +40,7 @@ type Props = {
     mode?: MiraShellMode;
 };
 
-function getGreetingResponse(message: string) {
+function isConversationalMessage(message: string) {
     const normalized = message
         .trim()
         .toLowerCase()
@@ -48,7 +48,7 @@ function getGreetingResponse(message: string) {
         .replace(/\s+/g, " ");
 
     if (!normalized) {
-        return null;
+        return false;
     }
 
     const greetingPatterns = [
@@ -58,15 +58,7 @@ function getGreetingResponse(message: string) {
         /^(mira\s+)?(how are you|how are you doing|whats up|what's up)$/,
     ];
 
-    if (!greetingPatterns.some((pattern) => pattern.test(normalized))) {
-        return null;
-    }
-
-    if (normalized.includes("how are you") || normalized.includes("whats up") || normalized.includes("what's up")) {
-        return "I'm doing well, thanks for asking. How are you?";
-    }
-
-    return "Hi, I'm here.";
+    return greetingPatterns.some((pattern) => pattern.test(normalized));
 }
 
 export default function MiraShell({ mode = "global" }: Props) {
@@ -524,42 +516,13 @@ export default function MiraShell({ mode = "global" }: Props) {
     if (sendingRef.current) return;
     sendingRef.current = true;
 
-    const greetingResponse = getGreetingResponse(question);
-
-    if (greetingResponse) {
-        const now = new Date().toISOString();
-
-        setMessages((current) => [
-            ...current,
-            {
-                id: crypto.randomUUID(),
-                role: "user",
-                content: displayText || question,
-                created_at: now,
-            },
-            {
-                id: crypto.randomUUID(),
-                role: "assistant",
-                content: greetingResponse,
-                created_at: now,
-                metadata: {
-                    is_analytics_response: false,
-                    actions_enabled: false,
-                },
-            },
-        ]);
-        setError(null);
-        sendingRef.current = false;
-        return;
-    }
-
     if (!userId) {
         sendingRef.current = false;
         setError("Your signed-in session is still loading. Please try again.");
         return;
     }
 
-    if (!activeModelId) {
+    if (isConversationalMessage(question) || !activeModelId) {
         const now = new Date().toISOString();
         const optimisticMessage: MiraMessage = {
             id: crypto.randomUUID(),
