@@ -23,7 +23,6 @@ import {
     type MiraThread,
 } from "@/lib/api/mira";
 import { getAccessibleModels, getWorkspaceModels } from "@/lib/api/models";
-import { testSavedConnection } from "@/lib/api/connections";
 
 import MiraChatSidebar from "./MiraChatSidebar";
 import MiraChatWorkspace from "./MiraChatWorkspace";
@@ -121,47 +120,6 @@ export default function MiraShell({ mode = "global" }: Props) {
         () => models.find((model) => model.id === activeModelId) || null,
         [activeModelId, models]
     );
-
-    const [connectionHealthy, setConnectionHealthy] = useState<boolean | null>(null);
-    const [connectionCheckMessage, setConnectionCheckMessage] = useState<string | null>(null);
-    const [connectionBannerDismissed, setConnectionBannerDismissed] = useState(false);
-
-    const checkActiveConnection = useMemo(
-        () => async (connectionId: string) => {
-            try {
-                const result = await testSavedConnection(connectionId);
-                setConnectionHealthy(result.success);
-                setConnectionCheckMessage(result.success ? null : result.message);
-            } catch (err) {
-                setConnectionHealthy(false);
-                const message =
-                    err instanceof Error
-                        ? err.message
-                        : "Unable to verify the data connection.";
-                setConnectionCheckMessage(
-                    message.toLowerCase().includes("not found")
-                        ? "The selected model's data connection is unavailable. Reconnect it or choose another model."
-                        : message
-                );
-            }
-        },
-        []
-    );
-
-    useEffect(() => {
-        setConnectionHealthy(null);
-        setConnectionCheckMessage(null);
-        setConnectionBannerDismissed(false);
-
-        // Global Mira resolves the best governed model only after a question is
-        // submitted. Testing the first model's connection at startup produces a
-        // misleading error before the user has selected any analytical context.
-        if (mode === "global" || !activeModel?.connection_id) {
-            return;
-        }
-
-        checkActiveConnection(activeModel.connection_id);
-    }, [mode, activeModel?.connection_id, checkActiveConnection]);
 
     const launchpadWorkspace = useMemo(
         () =>
@@ -864,18 +822,6 @@ export default function MiraShell({ mode = "global" }: Props) {
                     onCancel={() => activeRequestRef.current?.abort()}
                     progressEvents={progressEvents}
                     onSend={handleSend}
-                    connectionIssue={
-                        connectionHealthy === false && !connectionBannerDismissed
-                            ? connectionCheckMessage ||
-                              "This workspace's data warehouse connection needs to be reconnected."
-                            : null
-                    }
-                    onDismissConnectionIssue={() => setConnectionBannerDismissed(true)}
-                    onRetryConnectionCheck={() => {
-                        if (activeModel?.connection_id) {
-                            checkActiveConnection(activeModel.connection_id);
-                        }
-                    }}
                 />
             </main>
         </div>
