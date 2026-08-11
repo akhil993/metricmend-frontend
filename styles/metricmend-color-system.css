@@ -59,7 +59,7 @@
   --color-surface: #fffefa;
   --color-surface-raised: #ffffff;
   --color-surface-sunken: #f1efe9;
-  --color-nav: rgba(247, 245, 240, 0.92);
+  --color-nav: #f7f5f0;
   --color-footer: #252522;
   --color-modal: #fffefa;
   --color-popover: #ffffff;
@@ -143,7 +143,7 @@
   --color-surface: #1d1e1b;
   --color-surface-raised: #232420;
   --color-surface-sunken: #121310;
-  --color-nav: rgba(21, 22, 20, 0.92);
+  --color-nav: #151614;
   --color-footer: #10110f;
   --color-modal: #232420;
   --color-popover: #272824;

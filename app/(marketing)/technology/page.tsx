@@ -3,6 +3,11 @@ import {
   ArrowRight,
   Eye,
   Gauge,
+  Bell,
+  Bot,
+  DatabaseZap,
+  Search,
+  ServerCog,
   Network,
   ShieldCheck,
   UserCheck,
@@ -13,6 +18,16 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 export const metadata = {
   title: "Technology",
 };
+
+const platformServices = [
+  { icon: UserCheck, label: "Authentication" },
+  { icon: ServerCog, label: "Shared APIs" },
+  { icon: Bot, label: "AI services" },
+  { icon: DatabaseZap, label: "Knowledge engine" },
+  { icon: Search, label: "Search" },
+  { icon: Bell, label: "Notifications" },
+  { icon: Gauge, label: "Monitoring" },
+];
 
 export default function TechnologyPage() {
   return (
@@ -39,6 +54,34 @@ export default function TechnologyPage() {
           </p>
         </Reveal>
       </section>
+
+      <div className="band band-surface">
+        <section className="section platform-map-section">
+          <Reveal className="section-heading is-centered">
+            <p className="eyebrow">Shared AI platform</p>
+            <h2>Three products. One foundation.</h2>
+            <p>
+              Product experiences stay focused while common infrastructure is
+              built once, operated centrally, and improved for the entire ecosystem.
+            </p>
+          </Reveal>
+          <Reveal className="platform-map">
+            <div className="platform-products" aria-label="MetricMend AI products">
+              <span>InsightMend</span><span>LifeMeld</span><span>TechMeld</span>
+            </div>
+            <div className="platform-connector" aria-hidden="true" />
+            <div className="platform-core">
+              <Network size={20} />
+              <div><strong>MetricMend AI Platform</strong><small>Shared intelligence and infrastructure</small></div>
+            </div>
+            <div className="platform-services">
+              {platformServices.map(({ icon: Icon, label }) => (
+                <span key={label}><Icon size={16} />{label}</span>
+              ))}
+            </div>
+          </Reveal>
+        </section>
+      </div>
 
       <div className="band band-surface">
         <section className="section">
@@ -97,7 +140,7 @@ export default function TechnologyPage() {
       <section className="section">
         <Reveal className="section-heading">
           <p className="eyebrow">How it powers our products</p>
-          <h2>One platform, tuned for two different worlds.</h2>
+          <h2>One platform, tuned for three different worlds.</h2>
         </Reveal>
 
         <RevealGroup className="product-directory">
@@ -114,6 +157,22 @@ export default function TechnologyPage() {
                 </p>
                 <Link href="/assistants/mina">
                   Meet MINA <ArrowRight size={17} />
+                </Link>
+              </div>
+            </article>
+          </RevealItem>
+          <RevealItem>
+            <article className="directory-card">
+              <Search />
+              <div>
+                <p className="product-type">Technology intelligence</p>
+                <h2>TechMeld</h2>
+                <p>
+                  Shared ingestion, summarization, search, and monitoring turn
+                  fast-moving technology sources into concise, attributable updates.
+                </p>
+                <Link href="/techmeld">
+                  Explore TechMeld <ArrowRight size={17} />
                 </Link>
               </div>
             </article>

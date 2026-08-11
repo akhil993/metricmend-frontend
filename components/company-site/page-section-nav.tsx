@@ -24,12 +24,19 @@ export function PageSectionNav() {
   useEffect(() => {
     let sectionObserver: IntersectionObserver | undefined;
     let frame = 0;
+    let hashFrame = 0;
+
+    // Never show section links collected from the previous route while the
+    // next page is streaming into the shared marketing layout.
+    setSections([]);
+    setActiveId("");
 
     const initialize = () => {
+      const selector = pathname === "/products"
+        ? "main > section, [data-section-nav-item='true']"
+        : "main > section, main > .band > section";
       const elements = Array.from(
-        document.querySelectorAll<HTMLElement>(
-          "main > section, main > .band > section",
-        ),
+        document.querySelectorAll<HTMLElement>(selector),
       ).filter(
         (section) =>
           section.offsetHeight > 100 && section.dataset.sectionNav !== "false",
@@ -82,6 +89,19 @@ export function PageSectionNav() {
       setSections(links);
       setActiveId(links[0]?.id || "");
 
+      // A cross-route link such as /products#lifemeld can arrive before the
+      // destination cards mount. Scroll only after their IDs are available.
+      if (window.location.hash) {
+        const targetId = decodeURIComponent(window.location.hash.slice(1));
+        const target = document.getElementById(targetId);
+        if (target) {
+          hashFrame = window.requestAnimationFrame(() => {
+            target.scrollIntoView({ block: "start" });
+            setActiveId(targetId);
+          });
+        }
+      }
+
       sectionObserver?.disconnect();
       sectionObserver = new IntersectionObserver(
         (entries) => {
@@ -100,6 +120,7 @@ export function PageSectionNav() {
 
     const scheduleInitialize = () => {
       window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(hashFrame);
       frame = window.requestAnimationFrame(() => {
         if (initialize()) streamObserver.disconnect();
       });

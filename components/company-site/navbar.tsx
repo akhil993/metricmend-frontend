@@ -39,7 +39,8 @@ const assistantLinks = [
 ];
 
 const primaryLinks = [
-  { label: "MendJobs", href: "/mendjobs" },
+  { label: "Home", href: "/" },
+  { label: "Solutions", href: "/solutions" },
   { label: "Technology", href: "/technology" },
   { label: "Blog", href: "/techmeld/news" },
   { label: "Research", href: "/research" },
@@ -71,15 +72,16 @@ export function Navbar() {
 
         <div className="nav-main">
           <div className="desktop-nav">
+            <Link href="/">Home</Link>
             <Link
               href="/products"
               className={isCurrent("/products") ? "nav-current" : undefined}
               aria-current={isCurrent("/products") ? "page" : undefined}
             >
-              Explore Products
+              Products
             </Link>
 
-            {primaryLinks.map((item) => (
+            {primaryLinks.filter((item) => item.href !== "/").map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -94,7 +96,7 @@ export function Navbar() {
 
         <div className="nav-side">
           <Dropdown
-            label="Products"
+            label="Product Apps"
             items={[...productLinks, ...assistantLinks]}
             active={pathname.startsWith("/assistants")}
           />

@@ -1,11 +1,9 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  BarChart3,
   Briefcase,
   Eye,
   FlaskConical,
-  Heart,
   Network,
   ShieldCheck,
   Sparkles,
@@ -14,6 +12,7 @@ import {
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { HeroSection } from "@/components/hero/hero-section";
 import { UpdateCard } from "@/components/techmeld/update-card";
+import { ProductShowcase } from "@/components/company-site/product-showcase";
 import { getLatestArticles } from "@/lib/techmeld/queries";
 
 export default async function HomePage() {
@@ -91,62 +90,7 @@ export default async function HomePage() {
             </div>
           </Reveal>
 
-          <RevealGroup className="product-grid">
-            <RevealItem>
-              <article className="product-card lifemeld-card ecosystem-card">
-                <div className="product-icon">
-                  <Heart />
-                </div>
-                <p className="product-type">AI for life</p>
-                <h3>LifeMeld</h3>
-                <p>
-                  Bring tasks, budgets, documents, plans, events, and everyday
-                  life into one intelligent workspace.
-                </p>
-                <a
-                  href="https://www.lifemeldai.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Visit LifeMeld <ArrowRight size={16} />
-                </a>
-              </article>
-            </RevealItem>
-
-            <RevealItem>
-              <article className="product-card metricmend-card ecosystem-card">
-                <div className="product-icon">
-                  <BarChart3 />
-                </div>
-                <p className="product-type">AI for business</p>
-                <h3>InsightMend</h3>
-                <p>
-                  Turn business data into understandable insights,
-                  explanations, diagnostics, and better decisions.
-                </p>
-                <Link href="/insightmend">
-                  Explore InsightMend <ArrowRight size={16} />
-                </Link>
-              </article>
-            </RevealItem>
-
-            <RevealItem>
-              <article className="product-card future-card ecosystem-card">
-                <div className="product-icon">
-                  <Sparkles />
-                </div>
-                <p className="product-type">Technology intelligence</p>
-                <h3>TechMeld</h3>
-                <p>
-                  Follow curated AI, engineering, analytics, product, and
-                  research updates with clear source attribution.
-                </p>
-                <Link href="/techmeld">
-                  Explore TechMeld <ArrowRight size={16} />
-                </Link>
-              </article>
-            </RevealItem>
-          </RevealGroup>
+          <ProductShowcase />
         </section>
       </div>
 

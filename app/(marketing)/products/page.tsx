@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, Heart, Network, Newspaper } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, HeartHandshake, Network } from "lucide-react";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
+import { ProductShowcase } from "@/components/company-site/product-showcase";
 
 export const metadata = {
   title: "Products",
@@ -19,7 +20,7 @@ export default function ProductsPage() {
         </p>
       </Reveal>
 
-      <section className="section">
+      <section className="section" data-section-nav="false">
         <Reveal>
           <div className="ecosystem-tree">
             <div className="ecosystem-hub">
@@ -32,61 +33,38 @@ export default function ProductsPage() {
           </div>
         </Reveal>
 
-        <RevealGroup className="product-directory">
-          <RevealItem>
-            <article className="directory-card">
-              <Heart />
-              <div>
-                <p className="product-type">Life intelligence</p>
-                <h2>LifeMeld</h2>
-                <p>
-                  Plan events, manage tasks, organize budgets, understand
-                  documents, collaborate, and receive support from MINA — all
-                  inside one connected life workspace.
-                </p>
-                <a href="https://www.lifemeldai.com" target="_blank" rel="noopener noreferrer">
-                  Visit LifeMeld <ArrowRight size={17} />
-                </a>
-              </div>
-            </article>
-          </RevealItem>
-
-          <RevealItem>
-            <article className="directory-card">
-              <BarChart3 />
-              <div>
-                <p className="product-type">Business intelligence</p>
-                <h2>InsightMend</h2>
-                <p>
-                  Govern business data, ask natural-language questions,
-                  understand KPIs, diagnose changes, and make decisions with
-                  support from MIRA.
-                </p>
-                <Link href="/insightmend">
-                  Explore InsightMend <ArrowRight size={17} />
-                </Link>
-              </div>
-            </article>
-          </RevealItem>
-
-          <RevealItem>
-            <article className="directory-card">
-              <Newspaper />
-              <div>
-                <p className="product-type">Technology intelligence</p>
-                <h2>TechMeld</h2>
-                <p>
-                  Follow trustworthy AI, engineering, analytics, product, and
-                  research updates through one curated intelligence platform.
-                </p>
-                <Link href="/techmeld">
-                  Explore TechMeld <ArrowRight size={17} />
-                </Link>
-              </div>
-            </article>
-          </RevealItem>
-        </RevealGroup>
+        <ProductShowcase directory />
       </section>
+
+      <div className="band band-surface">
+        <section className="section" data-section-label="AI assistants">
+          <Reveal className="section-heading is-centered">
+            <p className="eyebrow">Specialized AI assistants</p>
+            <h2>Meet Mina and Mira.</h2>
+            <p>Each assistant is grounded in the product it serves, with focused capabilities and clear human control.</p>
+          </Reveal>
+          <RevealGroup className="assistant-directory">
+            <RevealItem>
+              <article id="mina" data-section-nav-item="true" data-section-label="Mina" className="assistant-directory-card mina-directory">
+                <HeartHandshake />
+                <p className="product-type">Inside LifeMeld</p>
+                <h2>Mina</h2>
+                <p>Your AI life assistant for organizing tasks, budgets, events, documents, and important plans.</p>
+                <Link href="/assistants/mina">Explore Mina <ArrowRight size={17} /></Link>
+              </article>
+            </RevealItem>
+            <RevealItem>
+              <article id="mira" data-section-nav-item="true" data-section-label="Mira" className="assistant-directory-card mira-directory">
+                <BriefcaseBusiness />
+                <p className="product-type">Inside InsightMend</p>
+                <h2>Mira</h2>
+                <p>Your enterprise decision intelligence assistant for trusted analysis, explanations, and next actions.</p>
+                <Link href="/assistants/mira">Explore Mira <ArrowRight size={17} /></Link>
+              </article>
+            </RevealItem>
+          </RevealGroup>
+        </section>
+      </div>
     </main>
   );
 }
