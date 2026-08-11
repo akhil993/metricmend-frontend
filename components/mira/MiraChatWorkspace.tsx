@@ -24,6 +24,7 @@ type Props = {
   onDismissConnectionIssue?: () => void;
   onRetryConnectionCheck?: () => void;
   onSend: (message: string, displayText?: string) => void;
+  onCancel?: () => void;
 };
 
 export default function MiraChatWorkspace({
@@ -43,6 +44,7 @@ export default function MiraChatWorkspace({
   onDismissConnectionIssue,
   onRetryConnectionCheck,
   onSend,
+  onCancel,
 }: Props) {
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-slate-50 dark:bg-[#070810]">
@@ -114,6 +116,8 @@ export default function MiraChatWorkspace({
         <div className="mx-auto max-w-3xl">
           <MiraInputBar
             disabled={sending}
+            sending={sending}
+            onCancel={onCancel}
             placeholder={
               thread
                 ? "Ask a follow-up..."

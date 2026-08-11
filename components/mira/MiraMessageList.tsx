@@ -45,7 +45,7 @@ export default function MiraMessageList({
   return (
     <div className="flex-1 overflow-y-auto px-4 py-8 sm:px-6">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-7">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <MiraMessageBubble
             key={message.id}
             message={message}
@@ -55,6 +55,7 @@ export default function MiraMessageList({
             onDrilldown={onDrilldown}
             onSendMessage={onSendMessage}
             sending={sending}
+            retryQuestion={message.role === "assistant" ? messages[index - 1]?.content : undefined}
           />
         ))}
 

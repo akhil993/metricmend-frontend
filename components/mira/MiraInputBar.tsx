@@ -7,18 +7,22 @@ import {
   useRef,
   useState,
 } from "react";
-import { ArrowUp, Sparkles } from "lucide-react";
+import { ArrowUp, Sparkles, Square } from "lucide-react";
 
 type Props = {
   disabled?: boolean;
   placeholder?: string;
   onSend: (message: string) => void;
+  sending?: boolean;
+  onCancel?: () => void;
 };
 
 export default function MiraInputBar({
   disabled,
   placeholder,
   onSend,
+  sending,
+  onCancel,
 }: Props) {
   const [value, setValue] = useState("");
 
@@ -79,14 +83,14 @@ export default function MiraInputBar({
           className="max-h-40 min-h-11 flex-1 resize-none bg-transparent px-3 py-3 text-[15px] leading-6 text-slate-950 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60 dark:text-slate-50 dark:placeholder:text-slate-500"
         />
 
-        <button
+        {sending ? <button type="button" onClick={onCancel} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950" aria-label="Cancel analysis"><Square className="h-3.5 w-3.5 fill-current" /></button> : <button
           type="submit"
           disabled={disabled || !value.trim()}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-950 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white dark:disabled:bg-white/10 dark:disabled:text-slate-600"
           aria-label="Send message"
         >
           <ArrowUp className="h-5 w-5" />
-        </button>
+        </button>}
       </div>
     </form>
   );

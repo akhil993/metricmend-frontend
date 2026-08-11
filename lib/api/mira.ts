@@ -76,6 +76,12 @@ export type MiraAskResponse = {
 export type MiraProgressEvent = {
   event: string;
   label: string;
+  detail?: string;
+  phase?: string;
+  progress?: number;
+  sequence?: number;
+  elapsed_ms?: number;
+  trace_version?: string;
   receivedAt?: number;
 };
 
@@ -98,6 +104,12 @@ export type MiraActionPayload = {
 export type MiraActionResponse = {
   success: boolean;
   data: Record<string, any>;
+};
+
+export type MiraDashboardCard = {
+  id: string; workspace_id: string; title: string; description?: string;
+  visual_payload: any; semantic_context?: Record<string, any>; metadata?: Record<string, any>;
+  created_at?: string;
 };
 
 async function request<T>(
@@ -194,9 +206,9 @@ async function requestStream<T>(
         const frame = JSON.parse(rawFrame.slice("data: ".length));
 
         if (frame.type === "progress") {
+          const { type: _type, ...progress } = frame;
           options?.onProgress?.({
-            event: frame.event,
-            label: frame.label,
+            ...progress,
           });
         } else if (frame.type === "result") {
           return frame.payload as T;
@@ -342,6 +354,15 @@ export async function createMiraDashboardCard(
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export async function listMiraDashboardCards(workspaceId: string): Promise<MiraDashboardCard[]> {
+  const response = await request<MiraActionResponse>(`/api/mira/dashboard-cards?workspace_id=${encodeURIComponent(workspaceId)}`);
+  return (response.data.cards || []) as MiraDashboardCard[];
+}
+
+export async function deleteMiraDashboardCard(workspaceId: string, cardId: string): Promise<void> {
+  await request<MiraActionResponse>(`/api/mira/dashboard-cards/${cardId}?workspace_id=${encodeURIComponent(workspaceId)}`, { method: "DELETE" });
 }
 
 export async function shareMiraArtifact(

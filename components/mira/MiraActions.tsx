@@ -11,6 +11,7 @@ import {
   Save,
   Share2,
   Sparkles,
+  Target,
 } from "lucide-react";
 
 export type MiraActionKey =
@@ -32,46 +33,44 @@ type ActionDef = {
   key: MiraActionKey;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  description?: string;
 };
 
 const primaryActions: ActionDef[] = [
   {
-    key: "save_insight",
-    label: "Save Insight",
-    icon: Save,
+    key: "root_cause_analysis",
+    label: "Investigate drivers",
+    icon: Target,
+    description: "Run a governed driver analysis",
   },
   {
-    key: "share_workspace",
-    label: "Share",
-    icon: Share2,
+    key: "executive_summary",
+    label: "Create executive brief",
+    icon: Sparkles,
+    description: "Summarize impact, risk, and next moves",
   },
 ];
 
 const moreActions: ActionDef[] = [
+  { key: "save_insight", label: "Save insight", icon: Save, description: "Add this result to the insight library" },
+  { key: "share_workspace", label: "Share analysis", icon: Share2, description: "Create a workspace share link" },
   {
     key: "export_visual",
     label: "Export Visual",
     icon: Download,
+    description: "Download the visual artifact",
   },
   {
     key: "export_table",
     label: "Export Table",
     icon: FileDown,
+    description: "Download the underlying result rows",
   },
   {
     key: "create_dashboard_card",
     label: "Dashboard Card",
     icon: BarChart3,
-  },
-  {
-    key: "root_cause_analysis",
-    label: "Root Cause",
-    icon: Sparkles,
-  },
-  {
-    key: "executive_summary",
-    label: "Executive Summary",
-    icon: Lightbulb,
+    description: "Pin this analysis to a dashboard",
   },
 ];
 
@@ -95,13 +94,12 @@ function ActionButton({
       disabled={disabled || isLoading}
       onClick={() => onAction(action.key)}
       className="
-        inline-flex items-center gap-2 rounded-full
-        border border-slate-200 bg-white px-3 py-2
-        text-xs font-semibold text-slate-700 shadow-sm
-        transition hover:-translate-y-0.5 hover:border-slate-300
-        hover:bg-slate-50 hover:shadow-md
+        inline-flex items-center gap-2 rounded-xl
+        border border-cyan-500/20 bg-gradient-to-b from-white to-cyan-50/50 px-3.5 py-2.5
+        text-xs font-semibold text-slate-800 shadow-sm
+        transition hover:-translate-y-0.5 hover:border-cyan-500/35 hover:shadow-md
         disabled:cursor-not-allowed disabled:opacity-50
-        dark:border-white/10 dark:bg-white/[0.045]
+        dark:border-cyan-300/15 dark:bg-gradient-to-b dark:from-white/[0.07] dark:to-cyan-400/[0.04]
         dark:text-slate-200 dark:hover:border-white/20
         dark:hover:bg-white/[0.08]
       "
@@ -140,7 +138,7 @@ export default function MiraActions({
           disabled={disabled}
           onClick={() => setMenuOpen((current) => !current)}
           className="
-            inline-flex items-center gap-1.5 rounded-full
+            inline-flex items-center gap-1.5 rounded-xl
             border border-slate-200 bg-white px-3 py-2
             text-xs font-semibold text-slate-700 shadow-sm
             transition hover:-translate-y-0.5 hover:border-slate-300
@@ -152,7 +150,7 @@ export default function MiraActions({
           "
         >
           <MoreHorizontal className="h-3.5 w-3.5" />
-          {activeMoreAction ? "Working..." : "More actions"}
+          {activeMoreAction ? "Working..." : "Save, share & export"}
           <ChevronDown className="h-3.5 w-3.5" />
         </button>
 
@@ -171,10 +169,13 @@ export default function MiraActions({
                     setMenuOpen(false);
                     onAction(action.key);
                   }}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-white/[0.06]"
+                  className="flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-200 dark:hover:bg-white/[0.06]"
                 >
-                  <Icon className="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                  {isLoading ? "Working..." : action.label}
+                  <Icon className="mt-0.5 h-4 w-4 text-slate-400 dark:text-slate-500" />
+                  <span>
+                    <span className="block text-sm font-medium">{isLoading ? "Working..." : action.label}</span>
+                    {action.description ? <span className="mt-0.5 block text-[11px] leading-4 text-slate-400">{action.description}</span> : null}
+                  </span>
                 </button>
               );
             })}

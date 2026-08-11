@@ -73,6 +73,7 @@ export default function MiraShell({ mode = "global" }: Props) {
     const { activeWorkspace, workspaces } = useAppWorkspace();
     const params = useParams<{ workspaceId?: string }>();
     const sendingRef = useRef(false);
+    const activeRequestRef = useRef<AbortController | null>(null);
 
     const routeWorkspaceId =
         typeof params?.workspaceId === "string" ? params.workspaceId : null;
@@ -611,6 +612,8 @@ export default function MiraShell({ mode = "global" }: Props) {
     setThinkingQuestion(displayText || question);
     setProgressEvents([]);
     setError(null);
+    const requestController = new AbortController();
+    activeRequestRef.current = requestController;
 
     const onProgress = (event: MiraProgressEvent) => {
         setProgressEvents((current) => [
@@ -630,9 +633,10 @@ export default function MiraShell({ mode = "global" }: Props) {
                         thread_id: activeThreadId,
                         question,
                     },
-                    { onProgress },
+                    { onProgress, signal: requestController.signal },
                 );
             } catch {
+                if (requestController.signal.aborted) throw new DOMException("Analysis cancelled", "AbortError");
                 response = await askGlobalMira({
                     user_id: userId,
                     thread_id: activeThreadId,
@@ -649,9 +653,10 @@ export default function MiraShell({ mode = "global" }: Props) {
                         thread_id: activeThreadId,
                         question,
                     },
-                    { onProgress },
+                    { onProgress, signal: requestController.signal },
                 );
             } catch {
+                if (requestController.signal.aborted) throw new DOMException("Analysis cancelled", "AbortError");
                 response = await askMira({
                     workspace_id: scopedWorkspaceId as string,
                     model_id: activeModelId as string,
@@ -709,8 +714,9 @@ export default function MiraShell({ mode = "global" }: Props) {
             ];
         });
     } catch (err) {
-        setError(getFriendlyErrorMessage(err));
+        setError(requestController.signal.aborted ? "Analysis cancelled. You can edit the question and try again." : getFriendlyErrorMessage(err));
     } finally {
+        activeRequestRef.current = null;
         sendingRef.current = false;
         setSending(false);
         setThinkingQuestion(null);
@@ -803,6 +809,7 @@ export default function MiraShell({ mode = "global" }: Props) {
                     workspaceLabel={workspaceLabel}
                     modelName={activeModelName}
                     thinkingQuestion={thinkingQuestion}
+                    onCancel={() => activeRequestRef.current?.abort()}
                     progressEvents={progressEvents}
                     onSend={handleSend}
                     connectionIssue={
