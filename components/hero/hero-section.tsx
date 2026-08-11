@@ -61,8 +61,8 @@ export function HeroSection() {
             Explore Products
             <ArrowRight size={17} />
           </Link>
-          <Link href="/about" className="secondary-button">
-            Our Story
+          <Link href="/contact" className="secondary-button">
+            Contact us
           </Link>
         </motion.div>
       </motion.div>

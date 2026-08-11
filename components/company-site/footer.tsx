@@ -46,6 +46,8 @@ export function Footer() {
           <Link href="/about">Company</Link>
           <Link href="/mendjobs">MendJobs</Link>
           <Link href="/contact">Contact</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
           <Link href="/techmeld/content-policy">News Attribution &amp; Content Policy</Link>
         </div>
       </div>

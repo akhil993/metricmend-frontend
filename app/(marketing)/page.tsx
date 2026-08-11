@@ -1,13 +1,10 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Briefcase,
   Eye,
-  FlaskConical,
   Network,
   ShieldCheck,
   Sparkles,
-  Users,
 } from "lucide-react";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/reveal";
 import { HeroSection } from "@/components/hero/hero-section";
@@ -169,11 +166,8 @@ export default async function HomePage() {
         </section>
       </div>
 
-      <section
-        className="section techmeld-latest-preview"
-        id="latest-techmelds"
-        data-section-label="Latest TechMelds"
-      >
+      {latestArticles.items.length > 0 && (
+      <section className="section techmeld-latest-preview" id="latest-techmelds" data-section-label="Latest TechMelds">
         <Reveal className="section-heading">
           <p className="eyebrow">Latest TechMelds</p>
           <h2>AI, engineering, and analytics news — brought together.</h2>
@@ -183,7 +177,6 @@ export default async function HomePage() {
           </p>
         </Reveal>
 
-        {latestArticles.items.length > 0 ? (
           <RevealGroup className="techmeld-update-grid">
             {latestArticles.items.map((article) => (
               <RevealItem key={article.id}>
@@ -191,12 +184,6 @@ export default async function HomePage() {
               </RevealItem>
             ))}
           </RevealGroup>
-        ) : (
-          <div className="techmeld-empty-state">
-            No approved updates yet. Once ingestion runs and editorial review
-            completes, they will appear here.
-          </div>
-        )}
 
         <div className="techmeld-section-action">
           <Link href="/techmeld" className="secondary-button">
@@ -204,76 +191,15 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
-
-      <div className="band band-surface">
-        <section
-          className="section"
-          id="discover-more"
-          data-section-label="Discover more"
-        >
-          <RevealGroup className="feature-grid">
-            <RevealItem>
-              <article className="info-panel">
-                <div className="panel-icon">
-                  <FlaskConical size={22} />
-                </div>
-                <p className="eyebrow">Featured research</p>
-                <h2>Research is on the way.</h2>
-                <p>
-                  We are investing in applied research on context-aware AI,
-                  data understanding, and human-AI interaction. Publications
-                  will appear here as that work matures.
-                </p>
-                <Link href="/research" className="secondary-button">
-                  Visit Research <ArrowRight size={16} />
-                </Link>
-              </article>
-            </RevealItem>
-
-            <RevealItem>
-              <article className="info-panel">
-                <div className="panel-icon">
-                  <Users size={22} />
-                </div>
-                <p className="eyebrow">Customer stories</p>
-                <h2>We&apos;re building alongside our first users.</h2>
-                <p>
-                  As LifeMeld and InsightMend grow, we&apos;ll share real
-                  stories from the people and teams using them.
-                </p>
-                <Link href="/contact" className="secondary-button">
-                  Share your story <ArrowRight size={16} />
-                </Link>
-              </article>
-            </RevealItem>
-
-            <RevealItem>
-              <article className="info-panel">
-                <div className="panel-icon">
-                  <Briefcase size={22} />
-                </div>
-                <p className="eyebrow">Careers</p>
-                <h2>Help us build what&apos;s next.</h2>
-                <p>
-                  We&apos;re a small, focused team building an intelligent
-                  product ecosystem from the ground up.
-                </p>
-                <Link href="/mendjobs" className="secondary-button">
-                  View careers <ArrowRight size={16} />
-                </Link>
-              </article>
-            </RevealItem>
-          </RevealGroup>
-        </section>
-      </div>
+      )}
 
       <section className="section roadmap-section">
         <Reveal className="section-heading">
-          <p className="eyebrow">Product roadmap</p>
-          <h2>The ecosystem is being built in the open.</h2>
+          <p className="eyebrow">Product portfolio</p>
+          <h2>Focused products. One company platform.</h2>
           <p>
-            LifeMeld shipped first. InsightMend and TechMeld expand the
-            ecosystem. None is the last product MetricMend AI will build.
+            Each MetricMend AI product is built for a distinct customer need,
+            with a shared commitment to context, explainability, and privacy.
           </p>
         </Reveal>
 
@@ -292,24 +218,24 @@ export default async function HomePage() {
           </RevealItem>
           <RevealItem>
             <div className="timeline-item">
-              <span>Building</span>
+              <span>Enterprise</span>
               <div>
                 <h3>InsightMend</h3>
                 <p>
                   Business intelligence guided by MIRA, turning raw data into
-                  explanations and decisions — in active development.
+                  explanations and governed decisions for modern teams.
                 </p>
               </div>
             </div>
           </RevealItem>
           <RevealItem>
             <div className="timeline-item">
-              <span>Exploring</span>
+              <span>Intelligence</span>
               <div>
-                <h3>Future products</h3>
+                <h3>TechMeld</h3>
                 <p>
-                  New applied-AI concepts across home, education, and travel
-                  — shaped in part by ideas from our community.
+                  Source-grounded technology updates with concise context and
+                  clear implications for professionals and builders.
                 </p>
               </div>
             </div>

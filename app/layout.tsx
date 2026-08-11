@@ -14,6 +14,17 @@ export const metadata: Metadata = {
   description:
     "MetricMend AI builds InsightMend, LifeMeld, and TechMeld on one shared AI platform.",
   applicationName: "MetricMend AI",
+  openGraph: {
+    type: "website",
+    siteName: "MetricMend AI",
+    title: "MetricMend AI",
+    description: "Connected, explainable AI products for work, life, and technology.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MetricMend AI",
+    description: "Connected, explainable AI products for work, life, and technology.",
+  },
 };
 
 export default function RootLayout({
