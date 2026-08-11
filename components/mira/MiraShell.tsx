@@ -52,8 +52,9 @@ function getGreetingResponse(message: string) {
     }
 
     const greetingPatterns = [
-        /^(hi|hello|hey|heya|yo|good morning|good afternoon|good evening)$/,
-        /^(hi|hello|hey|heya|yo)\s+(mira\s+)?(how are you|how are you doing|whats up|what's up)$/,
+        /^(hi|hello|hey|heya|yo)(\s+(there|mira))?$/,
+        /^(good morning|good afternoon|good evening)(\s+mira)?$/,
+        /^(hi|hello|hey|heya|yo)(\s+mira)?\s+(how are you|how are you doing|whats up|what's up)$/,
         /^(mira\s+)?(how are you|how are you doing|whats up|what's up)$/,
     ];
 
