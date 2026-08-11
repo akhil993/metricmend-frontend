@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
     askGlobalMira,
     askGlobalMiraStream,
+    askGeneralMira,
     askMira,
     askMiraStream,
     createMiraThread,
@@ -268,11 +269,10 @@ export default function MiraShell({ mode = "global" }: Props) {
 
                 setModels([]);
                 setActiveModelId(null);
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : "Failed to load semantic models"
-                );
+                const message = err instanceof Error ? err.message : "";
+                if (!message.toLowerCase().includes("not found")) {
+                    setError(message || "Failed to load semantic models");
+                }
             } finally {
                 if (!cancelled) {
                     setLoadingModels(false);
@@ -319,9 +319,10 @@ export default function MiraShell({ mode = "global" }: Props) {
 
                 setThreads([]);
                 setActiveThreadId(null);
-                setError(
-                    err instanceof Error ? err.message : "Failed to load Mira chats"
-                );
+                const message = err instanceof Error ? err.message : "";
+                if (!message.toLowerCase().includes("not found")) {
+                    setError(message || "Failed to load Mira chats");
+                }
             } finally {
                 if (!cancelled) {
                     setLoadingThreads(false);
@@ -584,13 +585,55 @@ export default function MiraShell({ mode = "global" }: Props) {
         return;
     }
 
-    if (!userId || !scopedWorkspaceId || !activeModelId) {
+    if (!userId) {
         sendingRef.current = false;
-        setError(
-            mode === "global"
-                ? "No accessible non-Launchpad semantic model found for Mira."
-                : "Workspace, user, or semantic model missing."
-        );
+        setError("Your signed-in session is still loading. Please try again.");
+        return;
+    }
+
+    if (!activeModelId) {
+        const now = new Date().toISOString();
+        const optimisticMessage: MiraMessage = {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: displayText || question,
+            created_at: now,
+        };
+
+        setMessages((current) => [...current, optimisticMessage]);
+        setSending(true);
+        setError(null);
+
+        try {
+            const response = await askGeneralMira({
+                user_id: userId,
+                question,
+                workspace_id: scopedWorkspaceId || undefined,
+            });
+
+            setMessages((current) => [
+                ...current,
+                {
+                    id: crypto.randomUUID(),
+                    role: "assistant",
+                    content: response.content,
+                    created_at: new Date().toISOString(),
+                    metadata: response.metadata,
+                    suggested_questions: response.suggested_questions,
+                },
+            ]);
+        } catch (err) {
+            setError(getFriendlyErrorMessage(err));
+        } finally {
+            sendingRef.current = false;
+            setSending(false);
+        }
+        return;
+    }
+
+    if (!scopedWorkspaceId) {
+        sendingRef.current = false;
+        setError("Select a workspace before running governed analysis.");
         return;
     }
 

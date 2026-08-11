@@ -59,6 +59,18 @@ export type GlobalMiraAskPayload = {
   question: string;
 };
 
+export type GeneralMiraAskPayload = {
+  user_id: string;
+  question: string;
+  workspace_id?: string;
+};
+
+export type GeneralMiraAskResponse = {
+  content: string;
+  metadata?: Record<string, unknown>;
+  suggested_questions?: string[];
+};
+
 export type MiraAskResponse = {
   thread_id: string;
   user_message: MiraMessage;
@@ -315,6 +327,15 @@ export async function askGlobalMira(
   payload: GlobalMiraAskPayload,
 ): Promise<MiraAskResponse> {
   return request<MiraAskResponse>("/api/mira/ask/global", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function askGeneralMira(
+  payload: GeneralMiraAskPayload,
+): Promise<GeneralMiraAskResponse> {
+  return request<GeneralMiraAskResponse>("/api/mira/ask/general", {
     method: "POST",
     body: JSON.stringify(payload),
   });
