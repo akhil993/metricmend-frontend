@@ -11,7 +11,7 @@ const productLinks = [
   {
     label: "InsightMend",
     description: "Enterprise decision intelligence",
-    href: "/insightmend",
+    href: "https://insightmend.com",
   },
   {
     label: "LifeMeld",

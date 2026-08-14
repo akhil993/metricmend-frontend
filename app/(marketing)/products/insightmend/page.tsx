@@ -61,9 +61,9 @@ export default function InsightMendPage() {
           why it changed, and what to do next.
         </p>
         <div className="mm-hero-actions">
-          <Link href="/insightmend" className="primary-button">
+          <a href="https://insightmend.com" className="primary-button">
             Open InsightMend <ArrowRight size={17} />
-          </Link>
+          </a>
           <Link href="/contact" className="secondary-button">Talk to us</Link>
         </div>
       </Reveal>
@@ -73,9 +73,9 @@ export default function InsightMendPage() {
           <p className="eyebrow">One governed operating model</p>
           <h2>From scattered data to confident decisions.</h2>
           <p>
-            The analytics experience previously known as MetricMend is now
-            InsightMend. Its architecture, governance, and Mira experience
-            remain intact under the MetricMend AI product ecosystem.
+            InsightMend is MetricMend AI&apos;s independent B2B analytics
+            product, with its own sign-in, workspace, and admin experience at
+            insightmend.com.
           </p>
         </Reveal>
         <RevealGroup className="feature-grid">

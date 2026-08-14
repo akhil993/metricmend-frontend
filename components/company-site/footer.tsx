@@ -22,9 +22,10 @@ export function Footer() {
             LifeMeld
             <ExternalLink size={12} />
           </a>
-          <Link href="/insightmend">
+          <a href="https://insightmend.com" target="_blank" rel="noopener noreferrer">
             InsightMend
-          </Link>
+            <ExternalLink size={12} />
+          </a>
           <Link href="/techmeld">TechMeld</Link>
         </div>
 

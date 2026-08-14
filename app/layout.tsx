@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
-import ClientRuntimeGuards from "@/components/app/ClientRuntimeGuards";
+import ClientRuntimeGuards from "@/components/shared/ClientRuntimeGuards";
 import "./globals.css";
 
 export const metadata: Metadata = {

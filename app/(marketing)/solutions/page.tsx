@@ -13,8 +13,9 @@ const solutions = [
     audience: "For organizations",
     title: "Make governed business decisions",
     description: "Connect data, shared business definitions, dashboards, and natural-language analysis in InsightMend.",
-    href: "/insightmend",
+    href: "https://insightmend.com",
     action: "Explore InsightMend",
+    external: true,
   },
   {
     icon: HeartHandshake,

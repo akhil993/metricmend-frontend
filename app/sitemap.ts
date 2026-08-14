@@ -13,7 +13,6 @@ const STATIC_ROUTES = [
   "/contact",
   "/products",
   "/solutions",
-  "/insightmend",
   "/products/coming-soon",
   "/assistants",
   "/assistants/mina",

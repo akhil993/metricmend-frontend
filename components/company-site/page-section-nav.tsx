@@ -158,16 +158,6 @@ export function PageSectionNav() {
           </li>
         ))}
       </ol>
-      {pathname === "/insightmend" && (
-        <div className="page-section-auth" aria-label="InsightMend account actions">
-          <a href="/login" className="nav-login-link">
-            Login
-          </a>
-          <a href="/signup" className="nav-signup-link">
-            Sign up
-          </a>
-        </div>
-      )}
     </aside>
   );
 }

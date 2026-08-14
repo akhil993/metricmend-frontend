@@ -26,7 +26,8 @@ export const companyProducts: CompanyProduct[] = [
       "Governance",
     ],
     assistant: "Powered by Mira",
-    href: "/insightmend",
+    href: "https://insightmend.com",
+    external: true,
   },
   {
     slug: "lifemeld",

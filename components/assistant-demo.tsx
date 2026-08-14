@@ -31,7 +31,7 @@ export function AssistantDemo({
   const noMotion = useReducedMotion();
   const d = (value: number) => (noMotion ? 0 : value);
   const productName = theme === "mina" ? "LifeMeld" : "InsightMend";
-  const productHref = theme === "mina" ? "https://www.lifemeldai.com" : "/insightmend";
+  const productHref = theme === "mina" ? "https://www.lifemeldai.com" : "https://insightmend.com";
   const workflow = theme === "mina"
     ? [
         ["Bring life into one view", "Connect plans, tasks, budgets, events, and documents around what matters to you."],
@@ -177,7 +177,7 @@ export function AssistantDemo({
           <h2>Meet {name} where the work happens.</h2>
           <p>Use the assistant alongside the plans, documents, data, and workflows it is designed to understand.</p>
         </div>
-        <Link href={productHref} target={theme === "mina" ? "_blank" : undefined} rel={theme === "mina" ? "noopener noreferrer" : undefined} className="primary-button">
+        <Link href={productHref} target="_blank" rel="noopener noreferrer" className="primary-button">
           Explore {productName} <ArrowRight size={17} />
         </Link>
       </section>
